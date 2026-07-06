@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="110" fill="#6a4cff"/>
+  <circle cx="256" cy="230" r="120" fill="#ffc233"/>
+  <g stroke="#ffc233" stroke-width="22" stroke-linecap="round">
+    <line x1="256" y1="60" x2="256" y2="95"/>
+    <line x1="256" y1="365" x2="256" y2="400"/>
+    <line x1="86" y1="230" x2="121" y2="230"/>
+    <line x1="391" y1="230" x2="426" y2="230"/>
+    <line x1="136" y1="110" x2="161" y2="135"/>
+    <line x1="351" y1="325" x2="376" y2="350"/>
+    <line x1="376" y1="110" x2="351" y2="135"/>
+    <line x1="161" y1="325" x2="136" y2="350"/>
+  </g>
+  <circle cx="220" cy="215" r="14" fill="#3a2a5d"/>
+  <circle cx="292" cy="215" r="14" fill="#3a2a5d"/>
+  <path d="M205 260 q51 45 102 0" stroke="#3a2a5d" stroke-width="16" fill="none" stroke-linecap="round"/>
+  <text x="256" y="470" font-family="Comic Sans MS, sans-serif" font-size="60" font-weight="bold" fill="#fff" text-anchor="middle">Sunny</text>
+</svg>

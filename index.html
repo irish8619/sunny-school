@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#6a4cff">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon.svg">
+<title>Sunny School</title>
+<style>
+  :root{ --bg1:#fff4d6; --bg2:#ffe3ec; --bg3:#e3f0ff; --ink:#3a2a5d; --purple:#6a4cff; --pink:#ff5c8a;
+    --green:#2fbf71; --yellow:#ffc233; --blue:#3aa0ff; --card:#ffffff; }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0; height:100%; font-family:"Comic Sans MS","Baloo",system-ui,sans-serif; color:var(--ink);}
+  body{ background:linear-gradient(160deg,var(--bg1),var(--bg2),var(--bg3)); background-attachment:fixed; overflow-x:hidden;
+    display:flex; flex-direction:column; align-items:center; padding:env(safe-area-inset-top) 16px calc(env(safe-area-inset-bottom) + 16px); }
+  .screen{width:100%; max-width:560px; margin:0 auto; flex:1; display:flex; flex-direction:column;}
+  .hidden{display:none !important;}
+
+  .topbar{display:flex; justify-content:space-between; align-items:center; padding:14px 4px 4px;}
+  .streak{font-size:20px; font-weight:bold; background:#fff; padding:8px 16px; border-radius:30px; box-shadow:0 4px 0 rgba(0,0,0,.06);}
+  .gear{background:#fff; border:none; width:48px; height:48px; border-radius:50%; font-size:22px; box-shadow:0 4px 0 rgba(0,0,0,.06);}
+  .mascot{font-size:110px; text-align:center; margin:14px 0 2px; animation:bob 3s ease-in-out infinite;}
+  @keyframes bob{0%,100%{transform:translateY(0) rotate(-3deg)} 50%{transform:translateY(-14px) rotate(3deg)}}
+  .hi{text-align:center; font-size:27px; font-weight:bold; margin:0 0 2px;}
+  .sub{text-align:center; font-size:16px; opacity:.75; margin:0 0 22px;}
+
+  .bigbtn{background:var(--purple); color:#fff; border:none; font-family:inherit; font-size:32px; font-weight:bold;
+    padding:24px; border-radius:32px; width:100%; box-shadow:0 8px 0 #4a30cc; cursor:pointer; transition:transform .08s, box-shadow .08s;}
+  .bigbtn:active{transform:translateY(6px); box-shadow:0 2px 0 #4a30cc;}
+  .bigbtn.pink{background:var(--pink); box-shadow:0 6px 0 #d63e6c; font-size:22px; padding:16px; margin-top:14px;}
+  .bigbtn.pink:active{box-shadow:0 2px 0 #d63e6c;}
+  .bigbtn.green{background:var(--green); box-shadow:0 7px 0 #1f9256;}
+  .bigbtn.green:active{box-shadow:0 2px 0 #1f9256;}
+  .melt{margin-top:auto; text-align:center; padding-top:22px;}
+  .melt button{background:rgba(255,255,255,.7); border:none; font-family:inherit; font-size:15px; color:#7a6a9a; padding:12px 18px; border-radius:20px;}
+
+  .chooseTitle{text-align:center; font-size:24px; font-weight:bold; margin:16px 0 4px;}
+  .chooseSub{text-align:center; font-size:15px; opacity:.65; margin:0 0 18px;}
+  .board{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+  .pcard{background:var(--card); border:none; font-family:inherit; border-radius:26px; padding:20px 10px; cursor:pointer;
+    box-shadow:0 6px 18px rgba(90,60,160,.14); display:flex; flex-direction:column; align-items:center; gap:6px; transition:transform .1s; animation:pop .35s cubic-bezier(.2,1.3,.4,1);}
+  .pcard:active{transform:scale(.94);}
+  .pcard .pe{font-size:56px;} .pcard .pt{font-size:18px; font-weight:bold; text-align:center; line-height:1.2;}
+  .pcard .pk{font-size:12px; text-transform:uppercase; letter-spacing:.5px; opacity:.55;}
+  @keyframes pop{from{transform:scale(.9); opacity:0} to{transform:scale(1); opacity:1}}
+
+  .backrow{text-align:left; padding:8px 4px 0;}
+  .back{background:none; border:none; font-family:inherit; font-size:17px; color:var(--ink); opacity:.6;}
+  .card{background:var(--card); border-radius:32px; padding:24px 22px; margin-top:8px; flex:1; display:flex; flex-direction:column;
+    box-shadow:0 10px 30px rgba(90,60,160,.18); animation:pop .35s cubic-bezier(.2,1.3,.4,1);}
+  .subj{font-size:15px; font-weight:bold; letter-spacing:.5px; text-transform:uppercase; opacity:.6;}
+  .emoji{font-size:80px; text-align:center; margin:6px 0;}
+  .title{font-size:27px; font-weight:bold; text-align:center; margin:0 0 12px;}
+  .grown{background:#fff7e0; border-radius:20px; padding:15px; font-size:17px; line-height:1.5;}
+  .grown b{color:var(--pink);}
+  .interactive{margin-top:14px; text-align:center; flex:1; display:flex; flex-direction:column; justify-content:center; align-items:center;}
+  .tiles{display:flex; flex-wrap:wrap; gap:12px; justify-content:center;}
+  .tile{background:var(--blue); color:#fff; border:none; font-family:inherit; font-size:34px; font-weight:bold;
+    min-width:72px; height:72px; padding:0 14px; border-radius:20px; box-shadow:0 5px 0 rgba(0,0,0,.15); cursor:pointer;}
+  .tile:active{transform:translateY(3px);}
+  .tile.good{background:var(--green); animation:jig .4s;}
+  .tile.nudge{animation:shake .4s;}
+  @keyframes jig{0%,100%{transform:rotate(0)}25%{transform:rotate(-8deg)}75%{transform:rotate(8deg)}}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}
+  .donebtn{background:var(--green); color:#fff; border:none; font-family:inherit; font-size:26px; font-weight:bold;
+    padding:20px; border-radius:26px; width:100%; box-shadow:0 7px 0 #1f9256; cursor:pointer; margin-top:14px;}
+  .donebtn:active{transform:translateY(5px); box-shadow:0 2px 0 #1f9256;}
+  .stopbtn{background:none; border:none; font-family:inherit; font-size:16px; color:#7a6a9a; margin-top:12px; width:100%; padding:8px;}
+
+  .overlay{position:fixed; inset:0; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center;
+    z-index:50; background:rgba(255,255,255,.94); backdrop-filter:blur(4px); padding:24px;}
+  .party{font-size:120px; animation:bob 1.6s infinite;}
+  .partytxt{font-size:32px; font-weight:bold; margin:8px 20px 20px;}
+  .overlay .bigbtn{max-width:320px;}
+  .confetti{position:fixed; top:-20px; font-size:24px; z-index:60; pointer-events:none; animation:fall linear forwards;}
+  @keyframes fall{to{transform:translateY(105vh) rotate(720deg); opacity:.9}}
+
+  .panel{background:#fff; border-radius:28px; padding:22px; margin-top:12px; box-shadow:0 8px 24px rgba(90,60,160,.15);}
+  .panel h2{margin:0 0 12px; font-size:21px;}
+  .stat{display:flex; justify-content:space-between; padding:12px 4px; border-bottom:1px dashed #eee; font-size:18px;}
+  .stat b{color:var(--purple);}
+  .covered{display:flex; flex-wrap:wrap; gap:8px; margin-top:10px;}
+  .cv{background:#f0ecff; border-radius:14px; padding:8px 12px; font-size:15px;}
+  .namebox{width:100%; font-family:inherit; font-size:20px; padding:14px; border-radius:16px; border:2px solid #ddd; margin-top:6px;}
+  .tinybtn{background:#eee; border:none; font-family:inherit; font-size:15px; padding:10px 14px; border-radius:14px; margin-top:14px;}
+  .fullbtn{background:var(--blue); color:#fff; border:none; font-family:inherit; font-size:18px; font-weight:bold; width:100%;
+    padding:16px; border-radius:20px; box-shadow:0 5px 0 #2b7fd0; margin-top:6px;}
+
+  .rescue h2{font-size:24px;}
+  .step{display:flex; gap:12px; align-items:flex-start; padding:12px 0; border-bottom:1px dashed #eee; font-size:17px; line-height:1.4;}
+  .step .n{font-size:26px; flex-shrink:0;}
+
+  /* standards meter */
+  .strand{font-size:13px; text-transform:uppercase; letter-spacing:.5px; opacity:.55; margin:14px 0 4px;}
+  .bench{display:flex; gap:10px; align-items:flex-start; padding:9px 4px; font-size:14px; line-height:1.35; border-bottom:1px solid #f4f2fa;}
+  .bench .bdot{font-size:16px; flex-shrink:0;}
+  .bench .btxt b{color:var(--purple); font-size:12px;}
+  .bench.strong{background:#f0fbf5; border-radius:10px;}
+  .bench.practicing{background:#fffdf2; border-radius:10px;}
+  #stdSummary{background:#fff; border-radius:22px; padding:18px; margin-top:10px; font-size:16px; line-height:1.5; box-shadow:0 6px 18px rgba(90,60,160,.12);}
+</style>
+</head>
+<body>
+
+<!-- HOME -->
+<div id="home" class="screen">
+  <div class="topbar"><div class="streak">🔥 <span id="streakNum">0</span></div><button class="gear" onclick="showParent()">⚙️</button></div>
+  <div class="mascot">🦊</div>
+  <p class="hi" id="greet">Hi!</p>
+  <p class="sub" id="subgreet">Want to play?</p>
+  <button class="bigbtn" onclick="startPlay()">▶ Let's Play</button>
+  <button class="bigbtn pink" onclick="justOne()">🐭 Just one tiny thing</button>
+  <div class="melt"><button onclick="showRescue()">😣 She's melting down? Tap here</button></div>
+</div>
+
+<!-- CHOOSE -->
+<div id="choose" class="screen hidden">
+  <div class="backrow"><button class="back" onclick="goHome()">‹ Home</button></div>
+  <p class="chooseTitle">What sounds fun? 🎲</p>
+  <p class="chooseSub">She picks. Any pick is the right pick.</p>
+  <div class="board" id="board"></div>
+  <button class="bigbtn green" style="margin-top:18px" id="allDoneBtn" onclick="endForToday()">All done for today 💤</button>
+</div>
+
+<!-- ACTIVITY -->
+<div id="activity" class="screen hidden">
+  <div class="backrow"><button class="back" onclick="backToChoose()">‹ Pick something else</button></div>
+  <div class="card" id="card"></div>
+</div>
+
+<!-- PARENT -->
+<div id="parent" class="screen hidden">
+  <div class="backrow"><button class="back" onclick="goHome()">‹ Done</button></div>
+  <div class="panel">
+    <h2>👋 Grown-up corner</h2>
+    <div class="stat"><span>Days we played</span><b id="pDays">0</b></div>
+    <div class="stat"><span>Streak</span><b id="pStreak">0</b></div>
+    <div class="stat"><span>Little wins</span><b id="pActs">0</b></div>
+    <div class="stat"><span>Last time</span><b id="pLast">—</b></div>
+    <button class="fullbtn" onclick="showStandards()">📊 See our Florida progress</button>
+  </div>
+  <div class="panel">
+    <h2>📚 What we've explored</h2>
+    <div class="covered" id="coveredList"></div>
+  </div>
+  <div class="panel">
+    <h2>💛 The only rule</h2>
+    <p style="font-size:16px; line-height:1.5; margin:0">One tiny thing counts as a whole day. Stopping while she's still smiling is a <b>win</b>, not a quit. Never chase the next activity — let her lead. Weeks off are okay; just tap Let's Play whenever you can.</p>
+  </div>
+  <div class="panel">
+    <h2>🧒 Her name</h2>
+    <input class="namebox" id="nameInput" placeholder="Type her name" oninput="saveName(this.value)">
+    <button class="tinybtn" onclick="resetProgress()">Reset all progress</button>
+  </div>
+</div>
+
+<!-- STANDARDS -->
+<div id="standards" class="screen hidden">
+  <div class="backrow"><button class="back" onclick="showParent()">‹ Back</button></div>
+  <h2 style="text-align:center; margin:6px 0 0">📊 Our Florida Progress</h2>
+  <div id="stdSummary"></div>
+  <div id="stdBody"></div>
+  <div style="height:20px"></div>
+</div>
+
+<!-- RESCUE -->
+<div id="rescue" class="screen hidden">
+  <div class="backrow"><button class="back" onclick="goHome()">‹ Back</button></div>
+  <div class="panel rescue">
+    <h2>💛 She's shutting down. That's okay.</h2>
+    <p style="font-size:16px; opacity:.8; margin:0 0 6px">A calm stop teaches her that learning is safe. Right now:</p>
+    <div class="step"><span class="n">🛑</span><span><b>Stop the activity.</b> Don't push through — pushing teaches her that learning = stress.</span></div>
+    <div class="step"><span class="n">🧎</span><span><b>Get low, soft voice:</b> "This feels hard. We can stop. I'm right here."</span></div>
+    <div class="step"><span class="n">🤸</span><span><b>Switch to her body:</b> big squeeze, jump 10 times, drink of water. Movement resets the meltdown.</span></div>
+    <div class="step"><span class="n">🌙</span><span><b>End for today.</b> Coming back calm tomorrow beats forcing it now. You lost nothing.</span></div>
+    <div class="step" style="border:none"><span class="n">💛</span><span><b>Not your fault. Not hers.</b> Her brain hit its limit. You handled it right by being here.</span></div>
+  </div>
+  <button class="bigbtn green" onclick="wiggleRescue()">🤸 Do a wiggle together</button>
+  <button class="bigbtn pink" style="margin-top:12px" onclick="goHome()">Okay 💛</button>
+</div>
+
+<!-- OVERLAYS -->
+<div id="miniCelebrate" class="overlay hidden">
+  <div class="party" id="miniEmoji">⭐</div>
+  <p class="partytxt" id="miniTxt">Nice!</p>
+  <button class="bigbtn" onclick="backToChoose()">🎲 One more!</button>
+  <button class="bigbtn pink" onclick="endForToday()">All done 💤</button>
+</div>
+<div id="celebrate" class="overlay hidden">
+  <div class="party">🎉</div>
+  <p class="partytxt" id="partyTxt">You played today!</p>
+  <button class="bigbtn green" onclick="goHome()">Yay! 🌟</button>
+</div>
+
+<script src="data-banks.js"></script>
+<script src="content.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
