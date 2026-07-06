@@ -1,6 +1,6 @@
 // Sunny School — offline cache so the app works with no internet once loaded.
-const CACHE = "sunny-v4";
-const FILES = ["index.html", "data-banks.js", "content.js", "app.js", "pet.js", "manifest.webmanifest", "icon.svg"];
+const CACHE = "sunny-v5";
+const FILES = ["index.html", "data-banks.js", "content.js", "app.js", "pet.js", "pet-games.js", "manifest.webmanifest", "icon.svg"];
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)).then(() => self.skipWaiting()));
 });

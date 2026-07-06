@@ -78,6 +78,12 @@
   .confetti{position:fixed; top:-20px; font-size:24px; z-index:60; pointer-events:none; animation:fall linear forwards;}
   @keyframes fall{to{transform:translateY(105vh) rotate(720deg); opacity:.9}}
 
+  /* buddy mini-games */
+  .garea{position:relative; height:370px; background:#eaf0ff; border-radius:24px; overflow:hidden; margin-top:10px; box-shadow:inset 0 2px 10px rgba(0,0,0,.06);}
+  .gitem{position:absolute; font-size:46px; cursor:pointer; user-select:none; -webkit-user-select:none; transform:translateX(-50%); touch-action:none;}
+  @keyframes gfall{from{top:-14%} to{top:104%}}
+  @keyframes grise{from{top:104%} to{top:-14%}}
+
   .panel{background:#fff; border-radius:28px; padding:22px; margin-top:12px; box-shadow:0 8px 24px rgba(90,60,160,.15);}
   .panel h2{margin:0 0 12px; font-size:21px;}
   .stat{display:flex; justify-content:space-between; padding:12px 4px; border-bottom:1px dashed #eee; font-size:18px;}
@@ -117,8 +123,10 @@
   <div class="melt"><button onclick="showRescue()">😣 She's melting down? Tap here</button></div>
 </div>
 
-<!-- PET -->
+<!-- PET + SHOP + GAMES -->
 <div id="pet" class="screen hidden"></div>
+<div id="petshop" class="screen hidden"></div>
+<div id="petgame" class="screen hidden"></div>
 
 <!-- CHOOSE -->
 <div id="choose" class="screen hidden">
@@ -205,5 +213,6 @@
 <script src="content.js"></script>
 <script src="app.js"></script>
 <script src="pet.js"></script>
+<script src="pet-games.js"></script>
 </body>
 </html>

@@ -20,9 +20,11 @@ function choicesAround(answer, spread){          // 3 unique non-negative option
 let S = load();
 function load(){ try{ return migrate(JSON.parse(localStorage.getItem("sunny"))||fresh()); }catch(e){ return fresh(); } }
 function emptyProgress(){ const p={}; Object.keys(TRACKS).forEach(k=>p[k]=0); return p; }
-function freshPet(){ return { has:false, type:"", name:"", treats:0, fed:0, happy:100, lastVisit:"" }; }
+function freshPet(){ return { has:false, type:"", name:"", treats:0, fed:0, happy:100, lastVisit:"", owned:[], wear:{hat:null,item:null,scene:null} }; }
 function fresh(){ return { name:"", streak:0, days:0, acts:0, last:"", progress:emptyProgress(), covered:[], bench:{}, pet:freshPet() }; }
-function migrate(s){ if(!s.bench) s.bench={}; if(!s.pet) s.pet=freshPet(); const base=emptyProgress(); s.progress=Object.assign(base, s.progress||{}); return s; }
+function migrate(s){ if(!s.bench) s.bench={}; if(!s.pet) s.pet=freshPet();
+  if(!s.pet.owned) s.pet.owned=[]; if(!s.pet.wear) s.pet.wear={hat:null,item:null,scene:null};
+  const base=emptyProgress(); s.progress=Object.assign(base, s.progress||{}); return s; }
 function save(){ localStorage.setItem("sunny", JSON.stringify(S)); }
 function todayStr(){ const d=new Date(); return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate(); }
 function daysBetween(a,b){ return Math.round((new Date(b)-new Date(a))/86400000); }
@@ -350,7 +352,7 @@ function wiggleRescue(){ openActivity(nextItem("move")); }
 
 /* ---------- nav + fx ---------- */
 function hideOverlays(){ document.getElementById("miniCelebrate").classList.add("hidden"); document.getElementById("celebrate").classList.add("hidden"); }
-function show(id){ ["home","choose","activity","parent","rescue","standards","pet"].forEach(x=>document.getElementById(x).classList.add("hidden")); hideOverlays();
+function show(id){ if(typeof stopGame==="function") stopGame(); ["home","choose","activity","parent","rescue","standards","pet","petshop","petgame"].forEach(x=>{ const e=document.getElementById(x); if(e) e.classList.add("hidden"); }); hideOverlays();
   document.getElementById(id).classList.remove("hidden"); window.scrollTo(0,0); }
 function goHome(){ renderHome(); show("home"); }
 function ding(){ try{ const a=new (window.AudioContext||window.webkitAudioContext)(); const o=a.createOscillator(), g=a.createGain();
