@@ -20,8 +20,9 @@ function choicesAround(answer, spread){          // 3 unique non-negative option
 let S = load();
 function load(){ try{ return migrate(JSON.parse(localStorage.getItem("sunny"))||fresh()); }catch(e){ return fresh(); } }
 function emptyProgress(){ const p={}; Object.keys(TRACKS).forEach(k=>p[k]=0); return p; }
-function fresh(){ return { name:"", streak:0, days:0, acts:0, last:"", progress:emptyProgress(), covered:[], bench:{} }; }
-function migrate(s){ if(!s.bench) s.bench={}; const base=emptyProgress(); s.progress=Object.assign(base, s.progress||{}); return s; }
+function freshPet(){ return { has:false, type:"", name:"", treats:0, fed:0, happy:100, lastVisit:"" }; }
+function fresh(){ return { name:"", streak:0, days:0, acts:0, last:"", progress:emptyProgress(), covered:[], bench:{}, pet:freshPet() }; }
+function migrate(s){ if(!s.bench) s.bench={}; if(!s.pet) s.pet=freshPet(); const base=emptyProgress(); s.progress=Object.assign(base, s.progress||{}); return s; }
 function save(){ localStorage.setItem("sunny", JSON.stringify(S)); }
 function todayStr(){ const d=new Date(); return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate(); }
 function daysBetween(a,b){ return Math.round((new Date(b)-new Date(a))/86400000); }
@@ -32,6 +33,8 @@ function renderHome(){
   const nm=S.name||"friend", backToday=S.last===todayStr();
   document.getElementById("greet").textContent=(S.last&&!backToday?"Welcome back, ":"Hi ")+nm+"! 🦊";
   document.getElementById("subgreet").textContent=backToday?"You already played today — more if you want! 🌟":"Want to play?";
+  const bb=document.getElementById("buddyBtn");
+  if(bb) bb.innerHTML = S.pet.has ? (S.pet.type+" "+(S.pet.name||"My Buddy")+(S.pet.treats?' <span style="opacity:.85">🍎'+S.pet.treats+'</span>':'')) : "🥚 Meet your buddy!";
 }
 
 /* ---------- choose board ---------- */
@@ -276,6 +279,7 @@ function backToChoose(){ hideOverlays(); renderBoard(); show("choose"); }
 function finishActivity(){
   const it=current;
   S.progress[it.track]++; S.acts++;
+  S.pet.treats += 2;   // earn treats to care for the buddy (the reward loop)
   if(it.bench) it.bench.forEach(code=>{ S.bench[code]=(S.bench[code]||0)+1; });
   if(!S.covered.includes(it.t)){ S.covered.push(it.t); if(S.covered.length>60) S.covered.shift(); }
   const t=todayStr();
@@ -284,6 +288,8 @@ function finishActivity(){
   const em=["⭐","🌟","🎈","💛","✨","🏆"], tx=["Nice!","You did it!","Woohoo!","So fun!","Yes!","Superstar!"];
   document.getElementById("miniEmoji").textContent=em[S.acts%em.length];
   document.getElementById("miniTxt").textContent=tx[S.acts%tx.length];
+  document.getElementById("miniTreat").textContent="🍎 +2 treats for your buddy!";
+  save();
   document.getElementById("miniCelebrate").classList.remove("hidden");
   confetti(18);
 }
@@ -344,7 +350,7 @@ function wiggleRescue(){ openActivity(nextItem("move")); }
 
 /* ---------- nav + fx ---------- */
 function hideOverlays(){ document.getElementById("miniCelebrate").classList.add("hidden"); document.getElementById("celebrate").classList.add("hidden"); }
-function show(id){ ["home","choose","activity","parent","rescue","standards"].forEach(x=>document.getElementById(x).classList.add("hidden")); hideOverlays();
+function show(id){ ["home","choose","activity","parent","rescue","standards","pet"].forEach(x=>document.getElementById(x).classList.add("hidden")); hideOverlays();
   document.getElementById(id).classList.remove("hidden"); window.scrollTo(0,0); }
 function goHome(){ renderHome(); show("home"); }
 function ding(){ try{ const a=new (window.AudioContext||window.webkitAudioContext)(); const o=a.createOscillator(), g=a.createGain();

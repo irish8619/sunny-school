@@ -113,8 +113,12 @@
   <p class="sub" id="subgreet">Want to play?</p>
   <button class="bigbtn" onclick="startPlay()">▶ Let's Play</button>
   <button class="bigbtn pink" onclick="justOne()">🐭 Just one tiny thing</button>
+  <button class="bigbtn green" style="margin-top:14px;font-size:22px;padding:16px" id="buddyBtn" onclick="openPet()">🥚 Meet your buddy!</button>
   <div class="melt"><button onclick="showRescue()">😣 She's melting down? Tap here</button></div>
 </div>
+
+<!-- PET -->
+<div id="pet" class="screen hidden"></div>
 
 <!-- CHOOSE -->
 <div id="choose" class="screen hidden">
@@ -186,7 +190,9 @@
 <div id="miniCelebrate" class="overlay hidden">
   <div class="party" id="miniEmoji">⭐</div>
   <p class="partytxt" id="miniTxt">Nice!</p>
-  <button class="bigbtn" onclick="backToChoose()">🎲 One more!</button>
+  <p id="miniTreat" style="font-size:20px;margin:0 0 16px">🍎 +2 treats!</p>
+  <button class="bigbtn green" onclick="petFromCelebrate()">🐾 Feed your buddy</button>
+  <button class="bigbtn" style="margin-top:12px" onclick="backToChoose()">🎲 One more!</button>
   <button class="bigbtn pink" onclick="endForToday()">All done 💤</button>
 </div>
 <div id="celebrate" class="overlay hidden">
@@ -198,5 +204,6 @@
 <script src="data-banks.js"></script>
 <script src="content.js"></script>
 <script src="app.js"></script>
+<script src="pet.js"></script>
 </body>
 </html>
