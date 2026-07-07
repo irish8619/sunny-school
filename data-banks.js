@@ -38,9 +38,27 @@ const ENDINGS = ("jumps jumped jumping plays played playing helps helped helping
   "walks walked walking rests rested resting looks looked looking").split(" ");
 
 /* High-frequency "sight" words (Dolch pre-primer / primer) */
-const SIGHT = ("the a I to and you it is in was said for he she we me be my they "+
-  "of have are with all look see go come here like little do does what where "+
-  "who this that his her").split(" ");
+/* Full Dolch sight-word set, ordered easiest-first (pre-primer → primer → first grade)
+   so the adaptive reading tiers serve the simplest words before the harder ones.
+   The words themselves are facts (not copyrightable). */
+const SIGHT = (
+  /* pre-primer */ "the a I to and you it is in up we go see me my he look can come big blue red yellow little down find for funny help here jump make not one play run said three two away "+
+  /* primer */     "all am are at ate be black brown but came did do eat four get good have into like must new no now on our out please pretty ran ride saw say she so soon that there they this too under want was well went what white who will with yes "+
+  /* first grade */"after again an any as ask by could every fly from give going had has her him his how just know let live may of old once open over put round some stop take thank them then think walk were when"
+).split(" ");
+
+/* Elkonin sound-box words: split into PHONEMES (not letters) — digraphs are one sound.
+   Teaches that sounds ≠ letters. */
+const SOUNDBOX = [
+  {w:"cat",sounds:["c","a","t"]},{w:"dog",sounds:["d","o","g"]},{w:"pig",sounds:["p","i","g"]},
+  {w:"sun",sounds:["s","u","n"]},{w:"bug",sounds:["b","u","g"]},{w:"hat",sounds:["h","a","t"]},
+  {w:"cup",sounds:["c","u","p"]},{w:"bed",sounds:["b","e","d"]},{w:"pen",sounds:["p","e","n"]},
+  {w:"map",sounds:["m","a","p"]},{w:"top",sounds:["t","o","p"]},{w:"run",sounds:["r","u","n"]},
+  {w:"fan",sounds:["f","a","n"]},{w:"jam",sounds:["j","a","m"]},{w:"net",sounds:["n","e","t"]},
+  {w:"ship",sounds:["sh","i","p"]},{w:"chip",sounds:["ch","i","p"]},{w:"fish",sounds:["f","i","sh"]},
+  {w:"thin",sounds:["th","i","n"]},{w:"frog",sounds:["f","r","o","g"]},{w:"stop",sounds:["s","t","o","p"]},
+  {w:"hand",sounds:["h","a","n","d"]},{w:"jump",sounds:["j","u","m","p"]},
+];
 
 /* Rhyme families: [base, rhyme, rhyme, non-rhyme] */
 const RHYMES = [

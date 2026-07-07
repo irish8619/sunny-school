@@ -239,6 +239,27 @@ function buildGen(it, box){
     const q=el("div"); q.style.cssText="font-size:18px;line-height:1.4;margin-top:14px;background:#fff7e0;padding:15px;border-radius:16px"; q.textContent=st.q;
     box.appendChild(t); box.appendChild(q); narrate(st.t+". "+st.q); return;
   }
+  // ---- Quick Peek: subitizing on a ten-frame (recognize small quantities without counting) ----
+  if(g==="subitize"){
+    const t=aTier(); const n=R(1,[3,5,7][t]);
+    const frame=el("div"); frame.style.cssText="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;max-width:250px;margin:2px auto 16px;background:#fff;padding:16px;border-radius:22px;box-shadow:0 6px 18px rgba(90,60,160,.15)";
+    for(let i=0;i<10;i++){ const c=el("div"); c.style.cssText="width:36px;height:36px;border-radius:50%;background:"+(i<n?"#ff5c8a":"#eee7fb"); frame.appendChild(c); }
+    box.appendChild(frame);
+    prompt2(box,"How many dots? Take a peek!");
+    chooseTiles(box, choicesAround(n,2).map(v=>({label:v, correct:v===n}))); return;
+  }
+  // ---- Sound boxes (Elkonin): tap one box per SOUND heard (segmentation) ----
+  if(g==="soundbox"){
+    const wd=pick(SOUNDBOX);
+    prompt2(box,"Listen: "+bigword(wd.w)+". Tap a box for each sound you hear!");
+    const row=el("div","tiles"); let filled=0;
+    wd.sounds.forEach(()=>{ const b=el("button","tile"); b.style.cssText="width:60px;height:60px;background:#fff;border:3px dashed #b9a9e8;color:#6a4cff";
+      b.onclick=()=>{ if(b.dataset.f) return; b.dataset.f=1; b.textContent="🔵"; b.style.background="#efe9ff"; b.style.borderStyle="solid"; filled++; buzz(12);
+        if(typeof Voice!=="undefined") Voice.good(); else ding();
+        if(filled===wd.sounds.length){ narrate(wd.w+" has "+wd.sounds.length+" sounds!"); if(typeof Voice!=="undefined") Voice.fanfare(); } };
+      row.appendChild(b); });
+    box.appendChild(row); return;
+  }
   // fallback
   prompt2(box,"Play together, then tap below 👇");
 }

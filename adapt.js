@@ -24,6 +24,7 @@ const adapt = (function(){
      ABSENT on purpose — those are cards she picks, never ease-gated. */
   const SKILL = {
     add10:'math.add', add20:'math.add', doubles:'math.add',
+    subitize:'math.subitize',
     sub:'math.sub',
     missing:'math.place', onemore:'math.place', tenmore:'math.place', tensones:'math.place', compare:'math.place',
     count120:'math.count', countback:'math.count',
