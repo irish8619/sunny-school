@@ -8,7 +8,7 @@
    todayStr, daysBetween, goHome. Games in pet-games.js.
    ============================================================ */
 
-const PET_ANIMALS = ["🐱","🐶","🐰","🦊","🐻","🐥","🐉","🦄","🐧","🐼"];
+/* animals are full-body vector creatures — keys from CREATURE_KEYS (pet-art.js) */
 
 /* Cosmetics. slot: hat | item | scene.  free = level auto-unlocked (price 0). */
 const SHOP_ITEMS = [
@@ -70,8 +70,8 @@ function renderHatch(){
   root.appendChild(titleEl("🥚 Meet your new buddy!")); root.appendChild(subEl("Pick the friend you want to hatch:"));
   let chosen=null, nameVal="";
   const board=el("div"); board.style.cssText="display:grid;grid-template-columns:repeat(3,1fr);gap:12px";
-  PET_ANIMALS.forEach(a=>{ const b=el("button","pcard"); b.innerHTML=`<div style="font-size:52px">${a}</div>`;
-    b.onclick=()=>{ chosen=a; [...board.children].forEach(c=>c.style.outline=""); b.style.outline="4px solid #6a4cff"; ding(); hb.disabled=false; hb.style.opacity=1; };
+  CREATURE_KEYS.forEach(k=>{ const b=el("button","pcard"); b.style.padding="6px"; b.innerHTML=makeCreature(k,88);
+    b.onclick=()=>{ chosen=k; [...board.children].forEach(c=>c.style.outline=""); b.style.outline="4px solid #6a4cff"; ding(); hb.disabled=false; hb.style.opacity=1; };
     board.appendChild(b); });
   root.appendChild(board);
   const nameBox=el("input","namebox"); nameBox.placeholder="Name your buddy (optional)"; nameBox.maxLength=14; nameBox.style.marginTop="16px";
@@ -91,7 +91,7 @@ function renderPet(){
   // creature with worn cosmetics
   const wrap=el("div"); wrap.style.cssText="position:relative;cursor:pointer;margin:6px 0"; wrap.onclick=playPet;
   if(p.wear.hat){ const h=el("div"); h.textContent=ITEM(p.wear.hat).e; h.style.cssText="position:absolute;top:-8px;left:50%;transform:translateX(-50%);font-size:38px"; wrap.appendChild(h); }
-  const c=el("div"); c.textContent=p.type; c.style.cssText="font-size:"+petSize()+"px;animation:bob 2.6s ease-in-out infinite;line-height:1"; wrap.appendChild(c);
+  const c=el("div"); c.innerHTML=makeCreature(p.type, Math.round(petSize()*1.7)); c.style.cssText="line-height:0"; wrap.appendChild(c);
   if(p.wear.item){ const it=el("div"); it.textContent=ITEM(p.wear.item).e; it.style.cssText="position:absolute;bottom:-4px;right:-6px;font-size:34px"; wrap.appendChild(it); }
   card.appendChild(wrap);
   const nm=el("div"); nm.style.cssText="font-size:24px;font-weight:bold"; nm.textContent=p.name;
@@ -110,8 +110,9 @@ function renderPet(){
 
 function happyLine(){ const h=S.pet.happy; return h>=90?"I feel great! 💛":h>=70?"This is fun!":h>=55?"I'm so glad you're here.":"Yay, you came back!"; }
 function feedPet(){ if(S.pet.treats<1) return; const b=petLevel(); S.pet.treats--; S.pet.fed++; S.pet.happy=Math.min(100,S.pet.happy+15); ding();
-  if(petLevel()>b){ petCheckUnlocks(); confetti(30); petMsg="🎉 I grew to Level "+petLevel()+"!"; } else petMsg="Yum yum! 🍎 Thank you!"; save(); renderPet(); }
-function playPet(){ S.pet.happy=Math.min(100,S.pet.happy+8); ding(); save(); petMsg=["Wheee! 🎉","Hehe that tickles!","Again! Again!","I love you! 💛","So much fun!"][Math.floor(Math.random()*5)]; confetti(8); renderPet(); }
+  if(petLevel()>b){ petCheckUnlocks(); confetti(30); petMsg="🎉 I grew to Level "+petLevel()+"!"; } else petMsg="Yum yum! 🍎 Thank you!"; save(); renderPet(); petHop(); }
+function playPet(){ S.pet.happy=Math.min(100,S.pet.happy+8); ding(); save(); petMsg=["Wheee! 🎉","Hehe that tickles!","Again! Again!","I love you! 💛","So much fun!"][Math.floor(Math.random()*5)]; confetti(8); renderPet(); petHop(); }
+function petHop(){ const c=document.querySelector("#pet .creature"); if(c){ c.classList.add("happy"); setTimeout(()=>c.classList.remove("happy"),600); } }
 
 /* ---- closet & shop ---- */
 function renderShop(){
@@ -148,3 +149,6 @@ function shopCard(i){
 function backRow(fn,label){ const r=el("div","backrow"); const b=el("button","back"); b.textContent=label; b.onclick=fn; r.appendChild(b); return r; }
 function titleEl(t){ const h=el("div"); h.style.cssText="text-align:center;font-size:23px;font-weight:bold;margin:8px 0 2px"; h.textContent=t; return h; }
 function subEl(t){ const s=el("div"); s.style.cssText="text-align:center;font-size:15px;opacity:.65;margin-bottom:14px"; s.textContent=t; return s; }
+
+/* once every script is loaded, upgrade the home mascot to a living creature */
+window.addEventListener("load", function(){ try{ if(!document.getElementById("home").classList.contains("hidden")) renderHome(); }catch(e){} });

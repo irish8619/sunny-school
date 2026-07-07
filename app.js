@@ -36,7 +36,10 @@ function renderHome(){
   document.getElementById("greet").textContent=(S.last&&!backToday?"Welcome back, ":"Hi ")+nm+"! 🦊";
   document.getElementById("subgreet").textContent=backToday?"You already played today — more if you want! 🌟":"Want to play?";
   const bb=document.getElementById("buddyBtn");
-  if(bb) bb.innerHTML = S.pet.has ? (S.pet.type+" "+(S.pet.name||"My Buddy")+(S.pet.treats?' <span style="opacity:.85">🍎'+S.pet.treats+'</span>':'')) : "🥚 Meet your buddy!";
+  const pemoji = (typeof CREATURES!=="undefined" && CREATURES[S.pet.type]) ? CREATURES[S.pet.type].emoji : S.pet.type;
+  if(bb) bb.innerHTML = S.pet.has ? (pemoji+" "+(S.pet.name||"My Buddy")+(S.pet.treats?' <span style="opacity:.85">🍎'+S.pet.treats+'</span>':'')) : "🥚 Meet your buddy!";
+  const mas=document.querySelector(".mascot");
+  if(mas && typeof makeCreature==="function"){ mas.style.fontSize="0"; mas.innerHTML=makeCreature(S.pet.has?S.pet.type:"fox", 150); }
 }
 
 /* ---------- choose board ---------- */

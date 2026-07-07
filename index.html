@@ -181,6 +181,21 @@
   .garea{ background:linear-gradient(180deg,#dcefff,#eef4ff); box-shadow:inset 0 3px 12px rgba(90,120,200,.15); }
   .party{ filter:drop-shadow(0 10px 12px rgba(255,180,60,.4)); }
   .confetti{ font-size:28px; }
+
+  /* ---- living creatures ---- */
+  .creature{ display:block; margin:0 auto; }
+  .creature .pa-all{ transform-box:fill-box; transform-origin:60px 118px; animation:paBreathe 3s ease-in-out infinite; }
+  @keyframes paBreathe{ 0%,100%{transform:translateY(0) scaleY(1)} 50%{transform:translateY(-2px) scaleY(1.035)} }
+  .creature .pa-eye{ transform-box:fill-box; transform-origin:center; animation:paBlink 4.6s infinite; }
+  @keyframes paBlink{ 0%,93%,100%{transform:scaleY(1)} 96%{transform:scaleY(.08)} }
+  .creature .pa-tail{ transform-box:fill-box; transform-origin:15% 85%; animation:paWag 1.7s ease-in-out infinite; }
+  @keyframes paWag{ 0%,100%{transform:rotate(-9deg)} 50%{transform:rotate(11deg)} }
+  .creature .pa-ear-l{ transform-box:fill-box; transform-origin:50% 100%; animation:paEar 5s ease-in-out infinite; }
+  .creature .pa-ear-r{ transform-box:fill-box; transform-origin:50% 100%; animation:paEar 5s ease-in-out infinite .3s; }
+  @keyframes paEar{ 0%,88%,100%{transform:rotate(0)} 93%{transform:rotate(-9deg)} }
+  .creature.happy .pa-all{ animation:paHop .55s ease; }
+  @keyframes paHop{ 0%{transform:translateY(0)} 30%{transform:translateY(-26px) scaleY(1.06)} 62%{transform:translateY(0) scaleY(.94)} 100%{transform:translateY(0) scaleY(1)} }
+  @media (prefers-reduced-motion: reduce){ .creature *{ animation:none !important; } }
 </style>
 </head>
 <body>
@@ -300,6 +315,7 @@
 <script src="data-banks.js"></script>
 <script src="content.js"></script>
 <script src="app.js"></script>
+<script src="pet-art.js"></script>
 <script src="pet.js"></script>
 <script src="pet-games.js"></script>
 </body>
