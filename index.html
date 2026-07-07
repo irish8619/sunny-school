@@ -261,6 +261,7 @@
 <div id="petshop" class="screen hidden"></div>
 <div id="petgame" class="screen hidden"></div>
 <div id="garden" class="screen hidden"></div>
+<div id="welcome" class="overlay hidden"></div>
 
 <!-- CHOOSE -->
 <div id="choose" class="screen hidden">
@@ -286,6 +287,12 @@
     <div class="stat"><span>Little wins</span><b id="pActs">0</b></div>
     <div class="stat"><span>Last time</span><b id="pLast">—</b></div>
     <button class="fullbtn" onclick="showStandards()">📊 See our Florida progress</button>
+  </div>
+  <div class="panel">
+    <h2>🌟 How it's going</h2>
+    <div class="stat"><span>“Hear it again” taps 🔊</span><b id="pHear">0</b></div>
+    <div class="stat" style="border:none"><span>Times she opened Sunny</span><b id="pOpens">0</b></div>
+    <p style="font-size:13px;opacity:.65;margin-top:10px;line-height:1.5">More 🔊 taps means she's getting the instructions herself, by ear — driving it without needing you to read. That's the real win. 💛</p>
   </div>
   <div class="panel">
     <h2>📚 What we've explored</h2>
@@ -356,5 +363,6 @@
 <script src="pet.js"></script>
 <script src="pet-games.js"></script>
 <script src="garden.js"></script>
+<script src="checks.js"></script>
 </body>
 </html>

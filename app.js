@@ -21,9 +21,11 @@ let S = load();
 function load(){ try{ return migrate(JSON.parse(localStorage.getItem("sunny"))||fresh()); }catch(e){ return fresh(); } }
 function emptyProgress(){ const p={}; Object.keys(TRACKS).forEach(k=>p[k]=0); return p; }
 function freshPet(){ return { has:false, type:"", name:"", treats:0, fed:0, happy:100, lastVisit:"", owned:[], wear:{hat:null,item:null,scene:null} }; }
-function fresh(){ return { name:"", streak:0, days:0, acts:0, last:"", progress:emptyProgress(), covered:[], bench:{}, pet:freshPet(), garden:[] }; }
+function fresh(){ return { name:"", streak:0, days:0, acts:0, last:"", progress:emptyProgress(), covered:[], bench:{}, pet:freshPet(), garden:[], seenWelcome:false, stats:{opens:0,hearTaps:0} }; }
 function migrate(s){ if(!s.bench) s.bench={}; if(!s.pet) s.pet=freshPet(); if(!s.garden) s.garden=[];
   if(!s.pet.owned) s.pet.owned=[]; if(!s.pet.wear) s.pet.wear={hat:null,item:null,scene:null};
+  if(!s.stats) s.stats={opens:0,hearTaps:0};
+  if(s.seenWelcome===undefined) s.seenWelcome = (s.days>0 || s.acts>0);   // existing users skip the intro
   const base=emptyProgress(); s.progress=Object.assign(base, s.progress||{}); return s; }
 function save(){ localStorage.setItem("sunny", JSON.stringify(S)); }
 function todayStr(){ const d=new Date(); return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate(); }
@@ -33,6 +35,7 @@ function daysBetween(a,b){ return Math.round((new Date(b)-new Date(a))/86400000)
 let lastSpeech="";
 function narrate(text){ lastSpeech=text||""; if(typeof Voice!=="undefined") Voice.say(lastSpeech); }
 function sayAgain(){ if(typeof Voice!=="undefined") Voice.say(lastSpeech||""); }
+function hearAgain(){ if(S.stats){ S.stats.hearTaps++; save(); } sayAgain(); }   // the 🔊 button (a self-serve signal)
 function toggleSound(){ if(typeof Voice==="undefined") return; const m=Voice.toggleMute();
   const b=document.getElementById("soundBtn"); if(b) b.textContent=m?"🔇":"🔊"; if(!m) narrate("Sound on!"); }
 
@@ -78,7 +81,7 @@ function openActivity(it){
   current=it;
   const col=TRACKS[it.track].color;
   document.getElementById("card").innerHTML=`
-    <button class="hearbtn" onclick="sayAgain()" aria-label="Hear it again">🔊</button>
+    <button class="hearbtn" onclick="hearAgain()" aria-label="Hear it again">🔊</button>
     <div class="subj" style="color:${col}">${TRACKS[it.track].name}</div>
     <div class="emoji">${it.e}</div>
     <div class="title">${it.t}</div>
@@ -348,6 +351,8 @@ function showParent(){
   document.getElementById("pDays").textContent=S.days;
   document.getElementById("pActs").textContent=S.acts;
   document.getElementById("pLast").textContent=S.last||"—";
+  const ph=document.getElementById("pHear"); if(ph&&S.stats) ph.textContent=S.stats.hearTaps;
+  const po=document.getElementById("pOpens"); if(po&&S.stats) po.textContent=S.stats.opens;
   document.getElementById("nameInput").value=S.name;
   const cl=document.getElementById("coveredList"); cl.innerHTML="";
   if(!S.covered.length) cl.innerHTML='<span class="cv">Nothing yet — tap Let\'s Play! 🌱</span>';
@@ -394,6 +399,26 @@ function showStandards(){
   show("standards");
 }
 
+/* ---------- first-run welcome (warm, voiced, never forced) ---------- */
+function showWelcome(){
+  const w=document.getElementById("welcome");
+  w.innerHTML=`<div style="text-align:center;max-width:420px;width:100%">
+    <div id="welcomeFox" style="cursor:pointer">${typeof makeCreature==="function"?makeCreature("fox",180):"🦊"}</div>
+    <div id="welcomeBub" style="background:#fff;border-radius:22px;padding:14px 20px;font-size:21px;font-weight:bold;margin:12px auto;box-shadow:0 6px 16px rgba(90,60,140,.15)">Tap Sunny to say hi! 👆</div>
+    <button id="welcomeGo" class="bigbtn green" style="max-width:300px;display:none" onclick="finishWelcome()">Let's go! 🌟</button>
+  </div>`;
+  w.classList.remove("hidden");
+  const fox=document.getElementById("welcomeFox");
+  fox.onclick=()=>{
+    const c=fox.querySelector(".creature"); if(c){ c.classList.add("happy"); setTimeout(()=>c.classList.remove("happy"),600); }
+    if(typeof Voice!=="undefined") Voice.good();
+    narrate("Hi! I'm Sunny the fox! Let's learn and play together!");
+    document.getElementById("welcomeBub").textContent="Hi! I'm Sunny! 🦊";
+    document.getElementById("welcomeGo").style.display="block";
+  };
+}
+function finishWelcome(){ S.seenWelcome=true; save(); document.getElementById("welcome").classList.add("hidden"); goHome(); }
+
 /* ---------- rescue ---------- */
 function showRescue(){ show("rescue"); }
 function wiggleRescue(){ openActivity(nextItem("move")); }
@@ -416,5 +441,7 @@ function confetti(n){ const em=["🎉","⭐","🌟","💛","🎈","✨"];
 /* ---------- boot ---------- */
 // Personalize from the link (?name=Iris) on first open, then it's saved on-device.
 (function(){ try{ const p=new URLSearchParams(location.search).get("name"); if(p && !S.name){ S.name=p.trim().slice(0,20); save(); } }catch(e){} })();
-goHome();
+if(S.stats){ S.stats.opens++; save(); }                       // private, parent-only signal
+if(!S.seenWelcome){ renderHome(); if(document.readyState==="complete") showWelcome(); else window.addEventListener("load", showWelcome); }
+else goHome();
 if("serviceWorker" in navigator){ navigator.serviceWorker.register("sw.js").catch(()=>{}); }
