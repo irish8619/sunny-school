@@ -399,25 +399,30 @@ function showStandards(){
   show("standards");
 }
 
-/* ---------- first-run welcome (warm, voiced, never forced) ---------- */
+/* ---------- first-run welcome (warm, voiced, never forced, never a dead-end) ---------- */
+let welcomeTimer=null;
 function showWelcome(){
   const w=document.getElementById("welcome");
   w.innerHTML=`<div style="text-align:center;max-width:420px;width:100%">
-    <div id="welcomeFox" style="cursor:pointer">${typeof makeCreature==="function"?makeCreature("fox",180):"🦊"}</div>
-    <div id="welcomeBub" style="background:#fff;border-radius:22px;padding:14px 20px;font-size:21px;font-weight:bold;margin:12px auto;box-shadow:0 6px 16px rgba(90,60,140,.15)">Tap Sunny to say hi! 👆</div>
+    <div id="welcomeFox" style="cursor:pointer">${typeof makeCreature==="function"?makeCreature("fox",180):"<div style='font-size:120px'>🦊</div>"}</div>
+    <div style="font-size:42px;margin-top:-8px;animation:bob 1.1s ease-in-out infinite">👆</div>
+    <div id="welcomeBub" style="background:#fff;border-radius:22px;padding:14px 20px;font-size:21px;font-weight:bold;margin:8px auto;box-shadow:0 6px 16px rgba(90,60,140,.15)">Tap Sunny! 👋</div>
     <button id="welcomeGo" class="bigbtn green" style="max-width:300px;display:none" onclick="finishWelcome()">Let's go! 🌟</button>
   </div>`;
   w.classList.remove("hidden");
+  const reveal=()=>{ const go=document.getElementById("welcomeGo"); if(go) go.style.display="block"; };
   const fox=document.getElementById("welcomeFox");
   fox.onclick=()=>{
     const c=fox.querySelector(".creature"); if(c){ c.classList.add("happy"); setTimeout(()=>c.classList.remove("happy"),600); }
     if(typeof Voice!=="undefined") Voice.good();
     narrate("Hi! I'm Sunny the fox! Let's learn and play together!");
     document.getElementById("welcomeBub").textContent="Hi! I'm Sunny! 🦊";
-    document.getElementById("welcomeGo").style.display="block";
+    reveal();
   };
+  clearTimeout(welcomeTimer);
+  welcomeTimer=setTimeout(reveal, 8000);   // never a dead-end: show the way forward even if she doesn't tap
 }
-function finishWelcome(){ S.seenWelcome=true; save(); document.getElementById("welcome").classList.add("hidden"); goHome(); }
+function finishWelcome(){ clearTimeout(welcomeTimer); S.seenWelcome=true; save(); document.getElementById("welcome").classList.add("hidden"); goHome(); }
 
 /* ---------- rescue ---------- */
 function showRescue(){ show("rescue"); }

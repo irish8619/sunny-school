@@ -44,7 +44,8 @@ const Voice = (function(){
     if(unlocked) return; unlocked=true;
     const a=ctx(); if(a && a.state==="suspended") a.resume().catch(()=>{});
     try{ if(synth){ const u=new SpeechSynthesisUtterance(" "); u.volume=0; synth.speak(u); } }catch(e){}
-    try{ if(typeof sayAgain==="function") setTimeout(sayAgain,90); }catch(e){}   // replay the greeting that autoplay blocked
+    try{ if(typeof sayAgain==="function"){ var wv=document.getElementById("welcome");
+      if(!(wv && !wv.classList.contains("hidden"))) setTimeout(sayAgain,90); } }catch(e){}   // replay greeting autoplay blocked — but NOT during the welcome (would cut Sunny's line)
   }
 
   function say(text, opts){
