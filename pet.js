@@ -34,8 +34,28 @@ const SHOP_ITEMS = [
   {id:"space",   e:"🚀", name:"Outer Space",slot:"scene", price:20},
 ];
 const ITEM = id => SHOP_ITEMS.find(i=>i.id===id);
-const SCENE_BG = { rainbow:"linear-gradient(160deg,#ffd1e8,#d1e8ff,#d9ffe0)", night:"linear-gradient(160deg,#3a2a5d,#5a4a8d)",
-  garden:"linear-gradient(160deg,#eafbe0,#d6f5c8)", beach:"linear-gradient(160deg,#fff4c2,#bfeaff)", space:"linear-gradient(160deg,#2a2340,#453a6b)" };
+/* every buddy lives in a SCENE (default meadow); bought scenes swap it */
+const SCENES = {
+  none:   {bg:"linear-gradient(#c3ecff 0%,#e8f8ff 52%,#b6e88f 52%,#96d86e 100%)", deco:"meadow"},
+  rainbow:{bg:"linear-gradient(#cfefff 0%,#ffe6f5 58%,#b6e88f 58%,#96d86e 100%)", deco:"rainbow"},
+  night:  {bg:"linear-gradient(#241f47 0%,#3a2f66 60%,#4a3f76 60%,#2f2758 100%)", deco:"night"},
+  garden: {bg:"linear-gradient(#c3ecff 0%,#e8f8ff 50%,#a9de84 50%,#8ace63 100%)", deco:"garden"},
+  beach:  {bg:"linear-gradient(#bfe9ff 0%,#e0f4ff 55%,#ffe9b0 55%,#ffde8c 100%)", deco:"beach"},
+  space:  {bg:"linear-gradient(#141133 0%,#241f47 60%,#3a2f66 100%)", deco:"space"},
+};
+function petSceneBg(s){ return (SCENES[s]||SCENES.none).bg; }
+function starDeco(x,y,sz){ return `<div style="position:absolute;left:${x}%;top:${y}%;font-size:${sz||20}px;opacity:.9">✨</div>`; }
+function petSceneDeco(s){
+  const d=(SCENES[s]||SCENES.none).deco;
+  const cloud=(x,y,sz)=>`<div style="position:absolute;left:${x};top:${y};font-size:${sz}px;opacity:.92">☁️</div>`;
+  if(d==="night"||d==="space")
+    return `<div style="position:absolute;right:16px;top:12px;font-size:48px">🌙</div>`+starDeco(16,28,22)+starDeco(72,16,26)+starDeco(86,44,20)+starDeco(40,12,18)+starDeco(58,48,24)+starDeco(28,60,18);
+  let out=`<div style="position:absolute;left:14px;top:10px;font-size:56px">☀️</div>`+cloud("58%","12%",44)+cloud("16%","26%",34);
+  if(d==="rainbow") out+=`<div style="position:absolute;right:10px;top:44px;font-size:64px">🌈</div>`;
+  if(d==="garden"||d==="meadow") out+=`<div style="position:absolute;left:7%;bottom:8px;font-size:30px">🌷</div><div style="position:absolute;left:80%;bottom:6px;font-size:30px">🌼</div><div style="position:absolute;left:32%;bottom:4px;font-size:24px">🌱</div><div style="position:absolute;left:60%;bottom:6px;font-size:22px">🍄</div>`;
+  if(d==="beach") out+=`<div style="position:absolute;left:72%;bottom:8px;font-size:30px">🐚</div><div style="position:absolute;left:12%;bottom:6px;font-size:26px">⭐</div><div style="position:absolute;left:44%;bottom:4px;font-size:24px">🏖️</div>`;
+  return out;
+}
 
 let petMsg = "";
 
@@ -86,18 +106,22 @@ function renderHatch(){
 function renderPet(){
   const p=S.pet, root=document.getElementById("pet"); root.innerHTML="";
   root.appendChild(backRow(goHome,"‹ Home"));
-  const card=el("div"); card.style.cssText="border-radius:32px;padding:20px;margin-top:8px;text-align:center;box-shadow:0 10px 30px rgba(90,60,160,.18);flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;background:"+(p.wear.scene&&SCENE_BG[p.wear.scene]||"#fff");
-  const bub=el("div"); bub.style.cssText="background:rgba(255,255,255,.85);border-radius:18px;padding:10px 16px;font-size:16px;margin-bottom:6px;min-height:22px"; bub.textContent=petMsg||happyLine(); card.appendChild(bub);
+  const dark = p.wear.scene==="night"||p.wear.scene==="space";
+  const card=el("div"); card.style.cssText="position:relative;overflow:hidden;border-radius:32px;padding:20px;margin-top:8px;min-height:340px;text-align:center;box-shadow:0 10px 30px rgba(90,60,160,.18);flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;background:"+petSceneBg(p.wear.scene);
+  const deco=el("div"); deco.style.cssText="position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden"; deco.innerHTML=petSceneDeco(p.wear.scene); card.appendChild(deco);
+  const content=el("div"); content.style.cssText="position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;width:100%";
+  const bub=el("div"); bub.style.cssText="background:rgba(255,255,255,.9);border-radius:18px;padding:10px 16px;font-size:16px;font-weight:bold;margin-bottom:4px;min-height:22px;box-shadow:0 3px 8px rgba(90,60,140,.12)"; bub.textContent=petMsg||happyLine(); content.appendChild(bub);
   // creature with worn cosmetics
-  const wrap=el("div"); wrap.style.cssText="position:relative;cursor:pointer;margin:6px 0"; wrap.onclick=playPet;
-  if(p.wear.hat){ const h=el("div"); h.textContent=ITEM(p.wear.hat).e; h.style.cssText="position:absolute;top:-8px;left:50%;transform:translateX(-50%);font-size:38px"; wrap.appendChild(h); }
-  const c=el("div"); c.innerHTML=makeCreature(p.type, Math.round(petSize()*1.7)); c.style.cssText="line-height:0"; wrap.appendChild(c);
-  if(p.wear.item){ const it=el("div"); it.textContent=ITEM(p.wear.item).e; it.style.cssText="position:absolute;bottom:-4px;right:-6px;font-size:34px"; wrap.appendChild(it); }
-  card.appendChild(wrap);
-  const nm=el("div"); nm.style.cssText="font-size:24px;font-weight:bold"; nm.textContent=p.name;
-  const lv=el("div"); lv.style.cssText="font-size:14px;opacity:.6;margin-bottom:6px"; lv.textContent="Level "+petLevel();
-  const hearts=el("div"); hearts.style.cssText="font-size:26px;letter-spacing:2px"; hearts.textContent="❤️".repeat(petHearts())+"🤍".repeat(5-petHearts());
-  card.appendChild(nm); card.appendChild(lv); card.appendChild(hearts); root.appendChild(card);
+  const wrap=el("div"); wrap.style.cssText="position:relative;cursor:pointer;margin:6px 0;filter:drop-shadow(0 8px 8px rgba(60,40,90,.18))"; wrap.onclick=playPet;
+  if(p.wear.hat){ const h=el("div"); h.textContent=ITEM(p.wear.hat).e; h.style.cssText="position:absolute;top:-8px;left:50%;transform:translateX(-50%);font-size:38px;z-index:2"; wrap.appendChild(h); }
+  const c=el("div"); c.innerHTML=makeCreature(p.type, Math.round(petSize()*1.75)); c.style.cssText="line-height:0"; wrap.appendChild(c);
+  if(p.wear.item){ const it=el("div"); it.textContent=ITEM(p.wear.item).e; it.style.cssText="position:absolute;bottom:-4px;right:-6px;font-size:34px;z-index:2"; wrap.appendChild(it); }
+  content.appendChild(wrap);
+  const nm=el("div"); nm.style.cssText="font-size:26px;font-weight:bold;color:"+(dark?"#fff":"var(--ink)")+";text-shadow:0 2px 4px rgba(255,255,255,.5)"; nm.textContent=p.name;
+  const lv=el("div"); lv.style.cssText="font-size:14px;opacity:.75;margin-bottom:6px;color:"+(dark?"#fff":"var(--ink)"); lv.textContent="Level "+petLevel();
+  const hearts=el("div"); hearts.style.cssText="font-size:28px;letter-spacing:2px;filter:drop-shadow(0 2px 3px rgba(0,0,0,.15))"; hearts.textContent="❤️".repeat(petHearts())+"🤍".repeat(5-petHearts());
+  content.appendChild(nm); content.appendChild(lv); content.appendChild(hearts);
+  card.appendChild(content); root.appendChild(card);
   const tl=el("div"); tl.style.cssText="text-align:center;font-size:18px;margin:12px 0 6px"; tl.innerHTML="You have <b>🍎 "+p.treats+"</b> treats"; root.appendChild(tl);
   const feed=el("button","bigbtn green"); feed.textContent="🍎 Feed "+p.name; if(p.treats<1){ feed.disabled=true; feed.style.opacity=.5; } feed.onclick=feedPet; root.appendChild(feed);
   const row=el("div"); row.style.cssText="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px";

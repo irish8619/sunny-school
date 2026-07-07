@@ -119,10 +119,12 @@
   /* living background: drifting clouds + twinkling sparkles */
   #sky{ position:fixed; inset:0; z-index:-1; overflow:hidden; pointer-events:none; }
   #sky span{ position:absolute; will-change:transform,opacity; }
-  #sky .cloud{ animation:drift linear infinite; opacity:.55; }
-  #sky .spark{ animation:twinkle ease-in-out infinite; }
-  @keyframes drift{ from{transform:translateX(-25vw)} to{transform:translateX(125vw)} }
-  @keyframes twinkle{ 0%,100%{opacity:.15; transform:scale(.7)} 50%{opacity:.95; transform:scale(1.25)} }
+  #sky .cloud{ animation:cloudmove linear infinite; opacity:.72; filter:drop-shadow(0 8px 8px rgba(120,140,200,.12)); }
+  #sky .spark{ animation:sparkle ease-in-out infinite; }
+  #sky .float{ animation:floaty ease-in-out infinite; }
+  @keyframes cloudmove{ 0%{transform:translate(-32vw,0)} 25%{transform:translate(12vw,-22px)} 50%{transform:translate(52vw,6px)} 75%{transform:translate(92vw,-22px)} 100%{transform:translate(132vw,0)} }
+  @keyframes sparkle{ 0%,100%{opacity:.25; transform:translateY(0) scale(.75) rotate(0deg)} 50%{opacity:1; transform:translateY(-18px) scale(1.4) rotate(30deg)} }
+  @keyframes floaty{ 0%,100%{transform:translateY(0) rotate(-5deg)} 50%{transform:translateY(-26px) rotate(5deg)} }
 
   /* springy screen entrance */
   .screen:not(.hidden){ animation:screenIn .42s cubic-bezier(.2,1.1,.3,1); }
@@ -202,16 +204,22 @@
 
 <!-- living background -->
 <div id="sky" aria-hidden="true">
-  <span class="cloud" style="top:7%; font-size:58px; animation-duration:64s">☁️</span>
-  <span class="cloud" style="top:20%; font-size:38px; animation-duration:88s; animation-delay:-40s">☁️</span>
-  <span class="cloud" style="top:64%; font-size:50px; animation-duration:74s; animation-delay:-55s">☁️</span>
-  <span class="cloud" style="top:84%; font-size:34px; animation-duration:96s; animation-delay:-20s">☁️</span>
-  <span class="spark" style="top:13%; left:12%; font-size:22px; animation-duration:3s">✨</span>
-  <span class="spark" style="top:28%; left:83%; font-size:24px; animation-duration:4s; animation-delay:1s">⭐</span>
-  <span class="spark" style="top:52%; left:8%;  font-size:20px; animation-duration:3.6s; animation-delay:.6s">💛</span>
-  <span class="spark" style="top:74%; left:80%; font-size:22px; animation-duration:4.4s; animation-delay:1.4s">✨</span>
-  <span class="spark" style="top:44%; left:52%; font-size:18px; animation-duration:5s; animation-delay:2s">🌟</span>
-  <span class="spark" style="top:90%; left:30%; font-size:20px; animation-duration:4.2s; animation-delay:.9s">✨</span>
+  <span class="cloud" style="top:4%;  font-size:120px; animation-duration:70s">☁️</span>
+  <span class="cloud" style="top:17%; font-size:80px;  animation-duration:96s; animation-delay:-42s">☁️</span>
+  <span class="cloud" style="top:37%; font-size:66px;  animation-duration:118s; animation-delay:-80s">☁️</span>
+  <span class="cloud" style="top:58%; font-size:104px; animation-duration:82s; animation-delay:-55s">☁️</span>
+  <span class="cloud" style="top:80%; font-size:70px;  animation-duration:130s; animation-delay:-20s">☁️</span>
+  <span class="cloud" style="top:46%; left:66%; font-size:76px; animation-duration:150s; animation-delay:-100s">🌈</span>
+  <span class="spark" style="top:11%; left:9%;  font-size:48px; animation-duration:3.4s">⭐</span>
+  <span class="spark" style="top:25%; left:86%; font-size:56px; animation-duration:4.2s; animation-delay:1s">🌟</span>
+  <span class="spark" style="top:47%; left:5%;  font-size:40px; animation-duration:3.8s; animation-delay:.6s">✨</span>
+  <span class="spark" style="top:69%; left:88%; font-size:50px; animation-duration:4.6s; animation-delay:1.4s">⭐</span>
+  <span class="spark" style="top:88%; left:13%; font-size:44px; animation-duration:4s;   animation-delay:.9s">🌟</span>
+  <span class="spark" style="top:33%; left:49%; font-size:34px; animation-duration:5s;   animation-delay:2s">✨</span>
+  <span class="spark" style="top:8%;  left:62%; font-size:38px; animation-duration:4.4s; animation-delay:.3s">💛</span>
+  <span class="spark" style="top:60%; left:38%; font-size:30px; animation-duration:5.2s; animation-delay:2.3s">✨</span>
+  <span class="float" style="top:70%; left:26%; font-size:46px; animation-duration:6s;   animation-delay:1.1s">🎈</span>
+  <span class="float" style="top:20%; left:33%; font-size:40px; animation-duration:6.6s; animation-delay:.5s">🎈</span>
 </div>
 
 <!-- HOME -->
