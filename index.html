@@ -8,6 +8,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon.svg">
+<link rel="stylesheet" href="fonts.css">
 <title>Sunny School</title>
 <style>
   :root{ --bg1:#fff4d6; --bg2:#ffe3ec; --bg3:#e3f0ff; --ink:#3a2a5d; --purple:#6a4cff; --pink:#ff5c8a;
@@ -251,13 +252,15 @@
   <button class="bigbtn" onclick="startPlay()">▶ Let's Play</button>
   <button class="bigbtn pink" onclick="justOne()">🐭 Just one tiny thing</button>
   <button class="bigbtn green" style="margin-top:14px;font-size:22px;padding:16px" id="buddyBtn" onclick="openPet()">🥚 Meet your buddy!</button>
+  <button class="bigbtn" style="margin-top:12px;font-size:22px;padding:16px;background:linear-gradient(180deg,#5ad6c4,#2fb8a8);box-shadow:inset 0 3px 0 rgba(255,255,255,.5),0 8px 0 #1f9184" id="gardenBtn" onclick="openGarden()">🌱 Start my garden</button>
   <div class="melt"><button onclick="showRescue()">😣 She's melting down? Tap here</button></div>
 </div>
 
-<!-- PET + SHOP + GAMES -->
+<!-- PET + SHOP + GAMES + GARDEN -->
 <div id="pet" class="screen hidden"></div>
 <div id="petshop" class="screen hidden"></div>
 <div id="petgame" class="screen hidden"></div>
+<div id="garden" class="screen hidden"></div>
 
 <!-- CHOOSE -->
 <div id="choose" class="screen hidden">
@@ -346,5 +349,6 @@
 <script src="pet-art.js"></script>
 <script src="pet.js"></script>
 <script src="pet-games.js"></script>
+<script src="garden.js"></script>
 </body>
 </html>

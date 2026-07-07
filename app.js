@@ -21,8 +21,8 @@ let S = load();
 function load(){ try{ return migrate(JSON.parse(localStorage.getItem("sunny"))||fresh()); }catch(e){ return fresh(); } }
 function emptyProgress(){ const p={}; Object.keys(TRACKS).forEach(k=>p[k]=0); return p; }
 function freshPet(){ return { has:false, type:"", name:"", treats:0, fed:0, happy:100, lastVisit:"", owned:[], wear:{hat:null,item:null,scene:null} }; }
-function fresh(){ return { name:"", streak:0, days:0, acts:0, last:"", progress:emptyProgress(), covered:[], bench:{}, pet:freshPet() }; }
-function migrate(s){ if(!s.bench) s.bench={}; if(!s.pet) s.pet=freshPet();
+function fresh(){ return { name:"", streak:0, days:0, acts:0, last:"", progress:emptyProgress(), covered:[], bench:{}, pet:freshPet(), garden:[] }; }
+function migrate(s){ if(!s.bench) s.bench={}; if(!s.pet) s.pet=freshPet(); if(!s.garden) s.garden=[];
   if(!s.pet.owned) s.pet.owned=[]; if(!s.pet.wear) s.pet.wear={hat:null,item:null,scene:null};
   const base=emptyProgress(); s.progress=Object.assign(base, s.progress||{}); return s; }
 function save(){ localStorage.setItem("sunny", JSON.stringify(S)); }
@@ -50,6 +50,8 @@ function renderHome(){
   if(bb) bb.innerHTML = S.pet.has ? (pemoji+" "+(S.pet.name||"My Buddy")+(S.pet.treats?' <span style="opacity:.85">🍎'+S.pet.treats+'</span>':'')) : "🥚 Meet your buddy!";
   const mas=document.querySelector(".mascot");
   if(mas && typeof makeCreature==="function"){ mas.style.fontSize="0"; mas.innerHTML=makeCreature(S.pet.has?S.pet.type:"fox", 150); }
+  const gb=document.getElementById("gardenBtn");
+  if(gb && typeof gardenCount==="function"){ const n=gardenCount(); gb.innerHTML = n? ("🌱 My Garden — "+n+" grown!") : "🌱 Start my garden"; }
 }
 
 /* ---------- choose board ---------- */
@@ -116,6 +118,7 @@ function buildInteractive(it){
 }
 function el(tag,cls){ const e=document.createElement(tag); if(cls) e.className=cls; return e; }
 function sayNum(n){ if(typeof Voice!=="undefined"){ Voice.say(String(n)); Voice.good(); } else ding(); }
+function buzz(p){ try{ if(navigator.vibrate) navigator.vibrate(p); }catch(e){} }   // gentle haptic where supported
 
 /* ---------- generated problems (endlessly replayable) ---------- */
 function buildGen(it, box){
@@ -275,7 +278,7 @@ function chooseTiles(box, tiles, size){
     b.textContent=t.label;
     b.onclick=()=>{
       if(b.dataset.done) return;
-      if(t.correct){ b.classList.add("good"); b.dataset.done=1;
+      if(t.correct){ b.classList.add("good"); b.dataset.done=1; buzz(16);
         if(typeof Voice!=="undefined"){ Voice.say(String(t.label)); Voice.good(); } else ding(); }
       else { b.classList.add("nudge"); setTimeout(()=>b.classList.remove("nudge"),400);
         if(typeof Voice!=="undefined"){ Voice.nudge(); Voice.say("Good try! Try another."); } }
@@ -306,16 +309,20 @@ function finishActivity(){
   if(!S.covered.includes(it.t)){ S.covered.push(it.t); if(S.covered.length>60) S.covered.shift(); }
   const t=todayStr();
   if(S.last!==t){ S.days++; S.last=t; }   // sunny days only grow — a gap is never punished
+  const planted = (typeof plantSticker==="function") ? plantSticker() : "🌱";   // grow the garden
   save();
   const em=["⭐","🌟","🎈","💛","✨","🏆"], tx=["Nice!","You did it!","Woohoo!","So fun!","Yes!","Superstar!"];
   const line=tx[S.acts%tx.length];
-  document.getElementById("miniEmoji").textContent=em[S.acts%em.length];
+  const me=document.getElementById("miniEmoji");
+  if(S.pet.has && typeof makeCreature==="function"){ me.innerHTML=makeCreature(S.pet.type,120); const cr=me.querySelector(".creature"); if(cr) cr.classList.add("happy"); }
+  else me.textContent=em[S.acts%em.length];
   document.getElementById("miniTxt").textContent=line;
-  document.getElementById("miniTreat").textContent="🍎 +2 treats for your buddy!";
+  document.getElementById("miniTreat").innerHTML="🍎 +2 treats · you grew a "+planted+"!";
   save();
   document.getElementById("miniCelebrate").classList.remove("hidden");
   if(typeof Voice!=="undefined") Voice.fanfare();
-  narrate(line+" You earned two treats for your buddy!");
+  buzz([18,40,18]);
+  narrate(line+" You earned two treats, and grew a new plant in your garden!");
   confetti(18);
 }
 function endForToday(){
@@ -377,7 +384,7 @@ function wiggleRescue(){ openActivity(nextItem("move")); }
 
 /* ---------- nav + fx ---------- */
 function hideOverlays(){ document.getElementById("miniCelebrate").classList.add("hidden"); document.getElementById("celebrate").classList.add("hidden"); }
-function show(id){ if(typeof stopGame==="function") stopGame(); ["home","choose","activity","parent","rescue","standards","pet","petshop","petgame"].forEach(x=>{ const e=document.getElementById(x); if(e) e.classList.add("hidden"); }); hideOverlays();
+function show(id){ if(typeof stopGame==="function") stopGame(); ["home","choose","activity","parent","rescue","standards","pet","petshop","petgame","garden"].forEach(x=>{ const e=document.getElementById(x); if(e) e.classList.add("hidden"); }); hideOverlays();
   document.getElementById(id).classList.remove("hidden"); window.scrollTo(0,0);
   document.body.classList.toggle("calm", id==="activity"||id==="petgame"); }   // hush the background during a task
 function goHome(){ renderHome(); show("home"); }

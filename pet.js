@@ -153,6 +153,7 @@ function renderShop(){
     SHOP_ITEMS.filter(i=>i.slot===slot).forEach(i=>grid.appendChild(shopCard(i))); root.appendChild(grid);
   });
   root.appendChild(el("div")).style.height="16px";
+  if(typeof narrate==="function") narrate(p.name+"'s closet. Dress up your buddy!");
   show("petshop");
 }
 function shopCard(i){
@@ -162,11 +163,12 @@ function shopCard(i){
   let tag = worn?"Wearing ✓" : owned?"Tap to wear" : locked?("Level "+i.free) : i.free?("Free at Lv"+i.free):("🍎 "+i.price);
   b.innerHTML=`<div style="font-size:40px">${i.e}</div><div style="font-size:13px;font-weight:bold">${i.name}</div><div style="font-size:12px;opacity:.7;margin-top:2px">${tag}</div>`;
   if(worn) b.style.outline="4px solid #2fbf71";
-  if(locked){ b.style.opacity=.45; b.onclick=()=>{ petMsg=""; ding(); }; return b; }
+  const say=t=>{ if(typeof narrate==="function") narrate(t); };
+  if(locked){ b.style.opacity=.45; b.onclick=()=>{ say(i.name+". Play more to unlock it!"); if(typeof Voice!=="undefined") Voice.nudge(); }; return b; }
   b.onclick=()=>{
-    if(owned){ p.wear[i.slot]= worn?null:i.id; ding(); save(); renderShop(); }
-    else if(!i.free && p.treats>=i.price){ p.treats-=i.price; p.owned.push(i.id); p.wear[i.slot]=i.id; confetti(20); ding(); save(); renderShop(); }
-    else if(!i.free){ b.animate([{transform:'translateX(-6px)'},{transform:'translateX(6px)'},{transform:'translateX(0)'}],{duration:300}); }
+    if(owned){ p.wear[i.slot]= worn?null:i.id; say(worn?"Took off the "+i.name:"Wearing the "+i.name); ding(); save(); renderShop(); }
+    else if(!i.free && p.treats>=i.price){ p.treats-=i.price; p.owned.push(i.id); p.wear[i.slot]=i.id; say("You got the "+i.name+"!"); confetti(20); ding(); save(); renderShop(); }
+    else if(!i.free){ say(i.name+" costs "+i.price+" treats. Play to earn more!"); if(typeof Voice!=="undefined") Voice.nudge(); b.animate([{transform:'translateX(-6px)'},{transform:'translateX(6px)'},{transform:'translateX(0)'}],{duration:300}); }
   };
   return b;
 }
