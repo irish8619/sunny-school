@@ -60,6 +60,23 @@ const SOUNDBOX = [
   {w:"hand",sounds:["h","a","n","d"]},{w:"jump",sounds:["j","u","m","p"]},
 ];
 
+/* Word families (onset-rime): swap the first letter to make a new real word.
+   Every listed onset makes a REAL word with the rime. */
+const WORDFAMILY = [
+  {rime:"at", onsets:["c","b","h","m","r","s","f","p"]},
+  {rime:"an", onsets:["c","f","m","p","r","t","v"]},
+  {rime:"ig", onsets:["b","d","f","p","w","j"]},
+  {rime:"op", onsets:["h","m","p","t","c"]},
+  {rime:"un", onsets:["b","f","r","s","n"]},
+  {rime:"ed", onsets:["b","f","l","r","w"]},
+  {rime:"et", onsets:["g","j","l","m","n","p","w"]},
+  {rime:"ug", onsets:["b","h","j","m","r","t"]},
+  {rime:"ot", onsets:["c","d","h","p","n","g"]},
+  {rime:"ap", onsets:["c","g","l","m","n","t"]},
+  {rime:"in", onsets:["b","f","p","t","w"]},
+  {rime:"ay", onsets:["d","h","m","p","s","w"]},
+];
+
 /* Rhyme families: [base, rhyme, rhyme, non-rhyme] */
 const RHYMES = [
   ["cat","hat","bat","dog"], ["pig","wig","dig","sun"], ["bug","rug","hug","cup"],

@@ -82,6 +82,30 @@ function openPet(){
   show("pet");
 }
 function sayBuddy(m){ if(typeof narrate==="function") narrate((S.pet.name?S.pet.name+" says: ":"")+m); }
+
+/* ---- buddy "aliveness": idle micro-actions, floating hearts, chatter (all positive, no-death) ---- */
+const PET_IDLE_LINES = ["I'm so happy! 💛","What should we do?","I love you!","Tee hee!","You're my best friend!","Let's play!","Hi!","This is fun!","🎵 la la la 🎵"];
+let petIdleTimer=null;
+function emitHeart(){
+  const c=document.querySelector("#pet .creature"); if(!c) return;
+  const r=c.getBoundingClientRect(); const h=el("div");
+  h.textContent=["💛","⭐","✨","💕","🌟"][Math.floor(Math.random()*5)];
+  h.style.cssText="position:fixed;left:"+(r.left+r.width*(0.3+Math.random()*0.4))+"px;top:"+(r.top+r.height*0.35)+"px;font-size:26px;z-index:40;pointer-events:none";
+  document.body.appendChild(h);
+  h.animate([{transform:"translateY(0) scale(.6)",opacity:0},{transform:"translateY(-16px) scale(1.1)",opacity:1,offset:.25},{transform:"translateY(-72px) scale(.9)",opacity:0}],{duration:1500,easing:"ease-out"});
+  setTimeout(()=>h.remove(),1500);
+}
+function startPetIdle(){
+  clearInterval(petIdleTimer);
+  petIdleTimer=setInterval(function(){
+    const pet=document.getElementById("pet"), c=document.querySelector("#pet .creature");
+    if(!c || !pet || pet.classList.contains("hidden")){ clearInterval(petIdleTimer); petIdleTimer=null; return; }
+    const roll=Math.random();
+    if(roll<0.38){ c.classList.add("happy"); setTimeout(()=>c.classList.remove("happy"),550); }   // a little hop
+    else if(roll<0.72){ emitHeart(); }                                                              // float a heart
+    else { const b=document.getElementById("petBubble"); if(b) b.textContent=PET_IDLE_LINES[Math.floor(Math.random()*PET_IDLE_LINES.length)]; }  // a chatter line
+  }, 4200);   // gentle pace (calm budget)
+}
 function petFromCelebrate(){ hideOverlays(); openPet(); }
 
 /* ---- hatch ---- */
@@ -112,7 +136,7 @@ function renderPet(){
   const deco=el("div"); deco.style.cssText="position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden"; deco.innerHTML=petSceneDeco(p.wear.scene); card.appendChild(deco);
   const content=el("div"); content.style.cssText="position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;width:100%";
   const bubText=petMsg||happyLine();
-  const bub=el("div"); bub.style.cssText="background:rgba(255,255,255,.9);border-radius:18px;padding:10px 16px;font-size:16px;font-weight:bold;margin-bottom:4px;min-height:22px;box-shadow:0 3px 8px rgba(90,60,140,.12)"; bub.textContent=bubText; content.appendChild(bub);
+  const bub=el("div"); bub.id="petBubble"; bub.style.cssText="background:rgba(255,255,255,.9);border-radius:18px;padding:10px 16px;font-size:16px;font-weight:bold;margin-bottom:4px;min-height:22px;box-shadow:0 3px 8px rgba(90,60,140,.12)"; bub.textContent=bubText; content.appendChild(bub);
   /* NOTE: don't narrate here — renderPet runs on every pet/feed tap. The buddy speaks only at meaningful moments via sayBuddy(). */
   // creature with worn cosmetics
   const wrap=el("div"); wrap.style.cssText="position:relative;cursor:pointer;margin:6px 0;filter:drop-shadow(0 8px 8px rgba(60,40,90,.18))"; wrap.onclick=playPet;
@@ -132,13 +156,14 @@ function renderPet(){
   const games=el("button","bigbtn"); games.style.margin=0; games.style.fontSize="20px"; games.textContent="🎮 Games"; games.onclick=()=>openGames();
   row.appendChild(closet); row.appendChild(games); root.appendChild(row);
   const play=el("button","bigbtn"); play.style.cssText="margin-top:12px;background:#ffc233;box-shadow:0 6px 0 #d99e12;font-size:20px;padding:16px"; play.textContent="🎾 Pet & cuddle (free!)"; play.onclick=playPet; root.appendChild(play);
+  startPetIdle();   // the buddy does its own cute thing while she watches
   if(p.treats<1){ const hint=el("div"); hint.style.cssText="text-align:center;font-size:14px;opacity:.6;margin-top:12px"; hint.textContent="Do a learning activity to earn more treats! 🌟"; root.appendChild(hint); }
 }
 
 function happyLine(){ const h=S.pet.happy; return h>=90?"I feel great! 💛":h>=70?"This is fun!":h>=55?"I'm so glad you're here.":"Yay, you came back!"; }
 function feedPet(){ if(S.pet.treats<1) return; const b=petLevel(); S.pet.treats--; S.pet.fed++; S.pet.happy=Math.min(100,S.pet.happy+15); ding();
   if(petLevel()>b){ petCheckUnlocks(); confetti(30); petMsg="🎉 I grew to Level "+petLevel()+"!"; } else petMsg="Yum yum! 🍎 Thank you!"; save(); renderPet(); petHop(); sayBuddy(petMsg); }
-function playPet(){ S.pet.happy=Math.min(100,S.pet.happy+8); ding(); save(); petMsg=["Wheee! 🎉","Hehe that tickles!","Again! Again!","I love you! 💛","So much fun!"][Math.floor(Math.random()*5)]; confetti(8); renderPet(); petHop(); }
+function playPet(){ S.pet.happy=Math.min(100,S.pet.happy+8); ding(); save(); petMsg=["Wheee! 🎉","Hehe that tickles!","Again! Again!","I love you! 💛","So much fun!"][Math.floor(Math.random()*5)]; confetti(8); renderPet(); petHop(); for(let i=0;i<5;i++) setTimeout(emitHeart, i*90); }
 function petHop(){ const c=document.querySelector("#pet .creature"); if(c){ c.classList.add("happy"); setTimeout(()=>c.classList.remove("happy"),600); } }
 
 /* ---- closet & shop ---- */

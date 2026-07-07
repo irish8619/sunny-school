@@ -260,6 +260,43 @@ function buildGen(it, box){
       row.appendChild(b); });
     box.appendChild(row); return;
   }
+  // ---- Word family: drag (or tap) an onset letter onto the rime to build & hear words ----
+  if(g==="wordfamily"){
+    const fam=pick(WORDFAMILY);
+    prompt2(box,"Make words that end in <b>-"+fam.rime+"</b>!");
+    const disp=el("div"); disp.style.cssText="font-size:56px;font-weight:bold;color:#6a4cff;letter-spacing:2px;min-height:60px;margin:4px 0 16px"; disp.textContent="_"+fam.rime;
+    box.appendChild(disp);
+    const makeWord=(on)=>{ disp.textContent=on+fam.rime; disp.animate([{transform:'scale(1.25)'},{transform:'scale(1)'}],{duration:300}); buzz(12);
+      if(typeof Voice!=="undefined"){ Voice.say(on+fam.rime); Voice.good(); } else ding(); };
+    const row=el("div","tiles");
+    shuffle(fam.onsets).slice(0,6).forEach(on=>{ const b=el("button","tile"); b.textContent=on; b.style.touchAction="none";
+      b.addEventListener("pointerdown", e=>{ e.preventDefault();
+        const g2=b.cloneNode(true); g2.style.cssText=b.style.cssText+";position:fixed;z-index:99;opacity:.85;pointer-events:none;margin:0;left:"+(e.clientX-32)+"px;top:"+(e.clientY-32)+"px"; document.body.appendChild(g2);
+        const sx=e.clientX, sy=e.clientY; let moved=false;
+        const mv=ev=>{ g2.style.left=(ev.clientX-32)+"px"; g2.style.top=(ev.clientY-32)+"px"; if(Math.abs(ev.clientX-sx)+Math.abs(ev.clientY-sy)>10) moved=true; };
+        const up=ev=>{ document.removeEventListener("pointermove",mv); document.removeEventListener("pointerup",up); g2.remove();
+          const r=disp.getBoundingClientRect(); const over=ev.clientX>=r.left-30 && ev.clientX<=r.right+30 && ev.clientY>=r.top-50 && ev.clientY<=r.bottom+50;
+          if(over || !moved) makeWord(on); };   // dropped on the word, OR just tapped
+        document.addEventListener("pointermove",mv); document.addEventListener("pointerup",up);
+      });
+      row.appendChild(b); });
+    box.appendChild(row); return;
+  }
+  // ---- Number line hops: add by hopping a frog forward, counting aloud ----
+  if(g==="numberline"){
+    const a=R(1,6), b=R(1,Math.min(4,10-a)), ans=a+b, max=10;
+    prompt2(box,"Start at <b>"+a+"</b>. Hop <b>"+b+"</b> more!");
+    const line=el("div"); line.style.cssText="position:relative;height:96px;margin:8px 4px 16px;background:#fff;border-radius:18px;box-shadow:0 6px 18px rgba(90,60,160,.15)";
+    const rail=el("div"); rail.style.cssText="position:absolute;left:6%;right:6%;top:62px;height:4px;background:#e0d8f5;border-radius:2px"; line.appendChild(rail);
+    const at=i=>6+(i/max)*88; for(let i=0;i<=max;i++){ const m=el("div"); m.style.cssText="position:absolute;left:"+at(i)+"%;top:56px;transform:translateX(-50%);font-size:13px;color:#9a8ab8"; m.textContent=i; line.appendChild(m); }
+    const frog=el("div"); frog.textContent="🐸"; frog.style.cssText="position:absolute;top:12px;font-size:34px;transform:translateX(-50%);transition:left .35s cubic-bezier(.3,1.4,.5,1);left:"+at(a)+"%"; line.appendChild(frog);
+    box.appendChild(line);
+    let pos=a, hops=0;
+    const btn=el("button","tile"); btn.style.cssText="width:auto;padding:0 28px;font-size:22px"; btn.textContent="Hop! 🐸";
+    btn.onclick=()=>{ if(hops<b){ pos++; hops++; frog.style.left=at(pos)+"%"; sayNum(pos);
+      if(hops===b){ btn.disabled=true; btn.style.opacity=.5; narrate(a+" plus "+b+" is "+pos+"!"); if(typeof Voice!=="undefined") Voice.fanfare(); } } };
+    box.appendChild(btn); return;
+  }
   // fallback
   prompt2(box,"Play together, then tap below 👇");
 }
