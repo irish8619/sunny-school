@@ -29,12 +29,22 @@ function save(){ localStorage.setItem("sunny", JSON.stringify(S)); }
 function todayStr(){ const d=new Date(); return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate(); }
 function daysBetween(a,b){ return Math.round((new Date(b)-new Date(a))/86400000); }
 
+/* ---------- voice helpers ---------- */
+let lastSpeech="";
+function narrate(text){ lastSpeech=text||""; if(typeof Voice!=="undefined") Voice.say(lastSpeech); }
+function sayAgain(){ if(typeof Voice!=="undefined") Voice.say(lastSpeech||""); }
+function toggleSound(){ if(typeof Voice==="undefined") return; const m=Voice.toggleMute();
+  const b=document.getElementById("soundBtn"); if(b) b.textContent=m?"🔇":"🔊"; if(!m) narrate("Sound on!"); }
+
 /* ---------- home ---------- */
 function renderHome(){
-  document.getElementById("streakNum").textContent=S.streak;
+  document.getElementById("streakNum").textContent=S.days;   // sunny days — only ever grows, never resets
   const nm=S.name||"friend", backToday=S.last===todayStr();
-  document.getElementById("greet").textContent=(S.last&&!backToday?"Welcome back, ":"Hi ")+nm+"! 🦊";
+  const greet=(S.last&&!backToday?"Welcome back, ":"Hi ")+nm+"!";
+  document.getElementById("greet").textContent=greet+" 🦊";
   document.getElementById("subgreet").textContent=backToday?"You already played today — more if you want! 🌟":"Want to play?";
+  const sb=document.getElementById("soundBtn"); if(sb && typeof Voice!=="undefined") sb.textContent=Voice.isMuted()?"🔇":"🔊";
+  narrate(greet+" What do you want to do?");
   const bb=document.getElementById("buddyBtn");
   const pemoji = (typeof CREATURES!=="undefined" && CREATURES[S.pet.type]) ? CREATURES[S.pet.type].emoji : S.pet.type;
   if(bb) bb.innerHTML = S.pet.has ? (pemoji+" "+(S.pet.name||"My Buddy")+(S.pet.treats?' <span style="opacity:.85">🍎'+S.pet.treats+'</span>':'')) : "🥚 Meet your buddy!";
@@ -45,7 +55,9 @@ function renderHome(){
 /* ---------- choose board ---------- */
 let current=null;
 function nextItem(k){ return {track:k, ...TRACKS[k].items[ S.progress[k]%TRACKS[k].items.length ]}; }
-function startPlay(){ renderBoard(); show("choose"); }
+function startPlay(){ renderBoard(); show("choose");
+  const titles=ORDER.map(k=>TRACKS[k].items[S.progress[k]%TRACKS[k].items.length].t);
+  narrate("Pick one. "+titles.join(", ")+", or something else."); }
 function renderBoard(){
   const board=document.getElementById("board"); board.innerHTML="";
   ORDER.forEach(k=>{
@@ -64,6 +76,7 @@ function openActivity(it){
   current=it;
   const col=TRACKS[it.track].color;
   document.getElementById("card").innerHTML=`
+    <button class="hearbtn" onclick="sayAgain()" aria-label="Hear it again">🔊</button>
     <div class="subj" style="color:${col}">${TRACKS[it.track].name}</div>
     <div class="emoji">${it.e}</div>
     <div class="title">${it.t}</div>
@@ -71,6 +84,7 @@ function openActivity(it){
     <div class="interactive" id="inter"></div>
     <button class="donebtn" onclick="finishActivity()">We did it! ✓</button>
     <button class="stopbtn" onclick="endForToday()">All done for now 💤</button>`;
+  narrate(it.t);
   buildInteractive(it);
   show("activity");
 }
@@ -88,19 +102,20 @@ function buildInteractive(it){
     let n=0; const label=el("div"); label.style.fontSize="44px"; label.textContent="0";
     const wrap=el("div","tiles"); wrap.style.marginTop="14px";
     for(let i=0;i<it.n;i++){ const b=el("button","tile"); b.textContent=it.emoji;
-      b.onclick=()=>{ if(!b.dataset.c){ b.dataset.c=1; b.classList.add("good"); label.textContent=++n; ding(); } }; wrap.appendChild(b); }
+      b.onclick=()=>{ if(!b.dataset.c){ b.dataset.c=1; b.classList.add("good"); label.textContent=++n; sayNum(n); } }; wrap.appendChild(b); }
     box.appendChild(label); box.appendChild(wrap); return;
   }
   if(it.act==="count"){
     let n=0; const big=el("div"); big.style.fontSize="66px"; big.textContent="0";
     const b=el("button","tile"); b.style.width="auto"; b.style.padding="0 24px"; b.style.fontSize="22px"; b.textContent="Tap to count";
-    b.onclick=()=>{ if(n<it.n){ big.textContent=++n; ding(); if(n===it.n) big.textContent=n+" 🎉"; } };
+    b.onclick=()=>{ if(n<it.n){ big.textContent=++n; sayNum(n); if(n===it.n){ big.textContent=n+" 🎉"; if(typeof Voice!=="undefined") Voice.fanfare(); } } };
     box.appendChild(big); box.appendChild(b); return;
   }
   // say / fallback
   const p=el("div"); p.style.cssText="font-size:19px;opacity:.6"; p.textContent="Play together, then tap below 👇"; box.appendChild(p);
 }
 function el(tag,cls){ const e=document.createElement(tag); if(cls) e.className=cls; return e; }
+function sayNum(n){ if(typeof Voice!=="undefined"){ Voice.say(String(n)); Voice.good(); } else ding(); }
 
 /* ---------- generated problems (endlessly replayable) ---------- */
 function buildGen(it, box){
@@ -249,7 +264,7 @@ function buildTrace(it, box){
   box.appendChild(label); box.appendChild(canvas); box.appendChild(ctrl);
 }
 
-function prompt2(box, html){ const p=el("div"); p.style.cssText="font-size:24px;font-weight:bold;margin-bottom:14px"; p.innerHTML=html; box.appendChild(p); }
+function prompt2(box, html){ const p=el("div"); p.style.cssText="font-size:24px;font-weight:bold;margin-bottom:14px"; p.innerHTML=html; box.appendChild(p); narrate(html); }
 function bigword(w){ return '<span style="color:#6a4cff">'+w+'</span>'; }
 function askEq(box, text, answer, spread){ prompt2(box, bigword(text.replace('?','?'))+" ="+" ?"); if(text.includes("=")){ box.lastChild.innerHTML=bigword(text); } chooseTiles(box, choicesAround(answer,spread).map(v=>({label:v, correct:v===answer}))); }
 
@@ -260,8 +275,10 @@ function chooseTiles(box, tiles, size){
     b.textContent=t.label;
     b.onclick=()=>{
       if(b.dataset.done) return;
-      if(t.correct){ b.classList.add("good"); b.dataset.done=1; ding(); }
-      else { b.classList.add("nudge"); setTimeout(()=>b.classList.remove("nudge"),400); }
+      if(t.correct){ b.classList.add("good"); b.dataset.done=1;
+        if(typeof Voice!=="undefined"){ Voice.say(String(t.label)); Voice.good(); } else ding(); }
+      else { b.classList.add("nudge"); setTimeout(()=>b.classList.remove("nudge"),400);
+        if(typeof Voice!=="undefined"){ Voice.nudge(); Voice.say("Good try! Try another."); } }
     };
     wrap.appendChild(b);
   });
@@ -288,28 +305,33 @@ function finishActivity(){
   if(it.bench) it.bench.forEach(code=>{ S.bench[code]=(S.bench[code]||0)+1; });
   if(!S.covered.includes(it.t)){ S.covered.push(it.t); if(S.covered.length>60) S.covered.shift(); }
   const t=todayStr();
-  if(S.last!==t){ const gap=S.last?daysBetween(S.last,t):1; S.streak=(gap===1)?S.streak+1:1; S.days++; S.last=t; }
+  if(S.last!==t){ S.days++; S.last=t; }   // sunny days only grow — a gap is never punished
   save();
   const em=["⭐","🌟","🎈","💛","✨","🏆"], tx=["Nice!","You did it!","Woohoo!","So fun!","Yes!","Superstar!"];
+  const line=tx[S.acts%tx.length];
   document.getElementById("miniEmoji").textContent=em[S.acts%em.length];
-  document.getElementById("miniTxt").textContent=tx[S.acts%tx.length];
+  document.getElementById("miniTxt").textContent=line;
   document.getElementById("miniTreat").textContent="🍎 +2 treats for your buddy!";
   save();
   document.getElementById("miniCelebrate").classList.remove("hidden");
+  if(typeof Voice!=="undefined") Voice.fanfare();
+  narrate(line+" You earned two treats for your buddy!");
   confetti(18);
 }
 function endForToday(){
   hideOverlays();
   if(S.last===todayStr()){
-    document.getElementById("partyTxt").textContent=["You played today! 🌟","Great job today! 🎈","Proud of you! 💛"][S.days%3];
-    document.getElementById("celebrate").classList.remove("hidden"); confetti(40);
+    const line=["You played today! 🌟","Great job today! 🎈","Proud of you! 💛"][S.days%3];
+    document.getElementById("partyTxt").textContent=line;
+    document.getElementById("celebrate").classList.remove("hidden");
+    if(typeof Voice!=="undefined") Voice.fanfare(); narrate(line);
+    confetti(40);
   } else goHome();
 }
 
 /* ---------- parent ---------- */
 function showParent(){
   document.getElementById("pDays").textContent=S.days;
-  document.getElementById("pStreak").textContent=S.streak;
   document.getElementById("pActs").textContent=S.acts;
   document.getElementById("pLast").textContent=S.last||"—";
   document.getElementById("nameInput").value=S.name;
@@ -356,9 +378,11 @@ function wiggleRescue(){ openActivity(nextItem("move")); }
 /* ---------- nav + fx ---------- */
 function hideOverlays(){ document.getElementById("miniCelebrate").classList.add("hidden"); document.getElementById("celebrate").classList.add("hidden"); }
 function show(id){ if(typeof stopGame==="function") stopGame(); ["home","choose","activity","parent","rescue","standards","pet","petshop","petgame"].forEach(x=>{ const e=document.getElementById(x); if(e) e.classList.add("hidden"); }); hideOverlays();
-  document.getElementById(id).classList.remove("hidden"); window.scrollTo(0,0); }
+  document.getElementById(id).classList.remove("hidden"); window.scrollTo(0,0);
+  document.body.classList.toggle("calm", id==="activity"||id==="petgame"); }   // hush the background during a task
 function goHome(){ renderHome(); show("home"); }
-function ding(){ try{ const a=new (window.AudioContext||window.webkitAudioContext)(); const o=a.createOscillator(), g=a.createGain();
+function ding(){ if(typeof Voice!=="undefined"){ Voice.good(); return; }
+  try{ const a=new (window.AudioContext||window.webkitAudioContext)(); const o=a.createOscillator(), g=a.createGain();
   o.connect(g); g.connect(a.destination); o.frequency.value=880; o.type="sine"; g.gain.setValueAtTime(.15,a.currentTime);
   g.gain.exponentialRampToValueAtTime(.001,a.currentTime+.3); o.start(); o.stop(a.currentTime+.3);}catch(e){} }
 function confetti(n){ const em=["🎉","⭐","🌟","💛","🎈","✨"];

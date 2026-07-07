@@ -110,7 +110,9 @@ function renderPet(){
   const card=el("div"); card.style.cssText="position:relative;overflow:hidden;border-radius:32px;padding:20px;margin-top:8px;min-height:340px;text-align:center;box-shadow:0 10px 30px rgba(90,60,160,.18);flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;background:"+petSceneBg(p.wear.scene);
   const deco=el("div"); deco.style.cssText="position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden"; deco.innerHTML=petSceneDeco(p.wear.scene); card.appendChild(deco);
   const content=el("div"); content.style.cssText="position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;width:100%";
-  const bub=el("div"); bub.style.cssText="background:rgba(255,255,255,.9);border-radius:18px;padding:10px 16px;font-size:16px;font-weight:bold;margin-bottom:4px;min-height:22px;box-shadow:0 3px 8px rgba(90,60,140,.12)"; bub.textContent=petMsg||happyLine(); content.appendChild(bub);
+  const bubText=petMsg||happyLine();
+  const bub=el("div"); bub.style.cssText="background:rgba(255,255,255,.9);border-radius:18px;padding:10px 16px;font-size:16px;font-weight:bold;margin-bottom:4px;min-height:22px;box-shadow:0 3px 8px rgba(90,60,140,.12)"; bub.textContent=bubText; content.appendChild(bub);
+  if(typeof narrate==="function") narrate((p.name?p.name+" says: ":"")+bubText);   // the buddy talks
   // creature with worn cosmetics
   const wrap=el("div"); wrap.style.cssText="position:relative;cursor:pointer;margin:6px 0;filter:drop-shadow(0 8px 8px rgba(60,40,90,.18))"; wrap.onclick=playPet;
   if(p.wear.hat){ const h=el("div"); h.textContent=ITEM(p.wear.hat).e; h.style.cssText="position:absolute;top:-8px;left:50%;transform:translateX(-50%);font-size:38px;z-index:2"; wrap.appendChild(h); }
