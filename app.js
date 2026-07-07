@@ -21,8 +21,8 @@ let S = load();
 function load(){ try{ return migrate(JSON.parse(localStorage.getItem("sunny"))||fresh()); }catch(e){ return fresh(); } }
 function emptyProgress(){ const p={}; Object.keys(TRACKS).forEach(k=>p[k]=0); return p; }
 function freshPet(){ return { has:false, type:"", name:"", treats:0, fed:0, happy:100, lastVisit:"", owned:[], wear:{hat:null,item:null,scene:null} }; }
-function fresh(){ return { name:"", streak:0, days:0, acts:0, last:"", progress:emptyProgress(), covered:[], bench:{}, pet:freshPet(), garden:[], seenWelcome:false, stats:{opens:0,hearTaps:0} }; }
-function migrate(s){ if(!s.bench) s.bench={}; if(!s.pet) s.pet=freshPet(); if(!s.garden) s.garden=[];
+function fresh(){ return { name:"", streak:0, days:0, acts:0, last:"", progress:emptyProgress(), covered:[], bench:{}, pet:freshPet(), garden:[], seenWelcome:false, stats:{opens:0,hearTaps:0}, skill:{} }; }
+function migrate(s){ if(!s.bench) s.bench={}; if(!s.pet) s.pet=freshPet(); if(!s.garden) s.garden=[]; if(!s.skill) s.skill={};
   if(!s.pet.owned) s.pet.owned=[]; if(!s.pet.wear) s.pet.wear={hat:null,item:null,scene:null};
   if(!s.stats) s.stats={opens:0,hearTaps:0};
   if(s.seenWelcome===undefined) s.seenWelcome = (s.days>0 || s.acts>0);   // existing users skip the intro
@@ -128,10 +128,12 @@ function sayNum(n){ if(typeof Voice!=="undefined"){ Voice.good();   // chime ins
   clearTimeout(_numTimer); _numTimer=setTimeout(function(){ Voice.say(String(n)); }, 260); }   // speak the number once tapping settles (no mid-word cut-off)
   else ding(); }
 function buzz(p){ try{ if(navigator.vibrate) navigator.vibrate(p); }catch(e){} }   // gentle haptic where supported
+function aTier(){ return (typeof adapt!=="undefined") ? adapt.tier(3) : 0; }        // invisible difficulty tier 0..2
 
 /* ---------- generated problems (endlessly replayable) ---------- */
 function buildGen(it, box){
   const g=it.gen;
+  if(typeof adapt!=="undefined") adapt.begin(g);   // arm the invisible difficulty signal for this problem
   // ---- reading gens ----
   if(g==="blend"){
     const c=pick(CVC_PIC);
@@ -161,9 +163,10 @@ function buildGen(it, box){
     box.appendChild(wrap); return;
   }
   if(g==="sight"){
-    const w=pick(SIGHT);
+    const t=aTier(); const slice=SIGHT.slice(0,[12,24,SIGHT.length][t]);
+    const w=pick(slice);
     prompt2(box,"Find this word: "+bigword(w));
-    const others=shuffle(SIGHT.filter(x=>x!==w)).slice(0,2);
+    const others=shuffle(slice.filter(x=>x!==w)).slice(0,2);
     chooseTiles(box, shuffle([w,...others]).map(x=>({label:x, correct:x===w}))); return;
   }
   if(g==="rhyme"){
@@ -180,31 +183,31 @@ function buildGen(it, box){
   }
   // ---- counting gens (no wrong answer) ----
   if(g==="count120"){
-    const start=R(90,109); countTap(box, start, +1, 12, "Count UP from "+start+"!"); return;
+    const t=aTier(); const start=R(90,109); countTap(box, start, +1, [8,12,16][t], "Count UP from "+start+"!"); return;
   }
   if(g==="countback"){
-    const start=R(10,20); countTap(box, start, -1, Math.min(start,12), "Count BACK from "+start+"… blast off! 🚀"); return;
+    const t=aTier(); const start=[R(5,10),R(8,14),R(12,20)][t]; countTap(box, start, -1, Math.min(start,14), "Count BACK from "+start+"… blast off! 🚀"); return;
   }
   if(g==="skip"){
     const by=pick([2,5,10]), start=by, seq=[start,start*2,start*3];
     prompt2(box,"Skip by "+by+"s:  "+seq.join(", ")+", ?");
     const ans=start*4; chooseTiles(box, choicesAround(ans,by*2>3?by:3).map(v=>({label:v, correct:v===ans}))); return;
   }
-  // ---- arithmetic gens ----
-  if(g==="add10"){ const a=R(1,7), b=R(1,10-a); askEq(box, a+" + "+b, a+b, 3); return; }
-  if(g==="add20"){ const a=R(5,12), b=R(3,20-a); askEq(box, a+" + "+b, a+b, 3); return; }
-  if(g==="sub"){ const a=R(6,20), b=R(1,a-1); askEq(box, a+" − "+b, a-b, 3); return; }
+  // ---- arithmetic gens (number ranges quietly tiered to her by adapt) ----
+  if(g==="add10"){ const t=aTier(); const cap=[8,10,13][t]; const a=R(1,Math.min(7,cap-1)); const b=R(1,cap-a); askEq(box, a+" + "+b, a+b, 3); return; }
+  if(g==="add20"){ const t=aTier(); const cap=[13,17,20][t]; const a=R(4,Math.min(12,cap-2)); const b=R(2,cap-a); askEq(box, a+" + "+b, a+b, 3); return; }
+  if(g==="sub"){ const t=aTier(); const cap=[10,15,20][t]; const a=R(5,cap); const b=R(1,a-1); askEq(box, a+" − "+b, a-b, 3); return; }
   if(g==="make10"){ const a=R(1,9); askEq(box, a+" + ? = 10", 10-a, 3); return; }
-  if(g==="onemore"){ const n=R(10,98), up=Math.random()<.5; askEq(box, (up?"1 more than ":"1 less than ")+n, up?n+1:n-1, 2); return; }
-  if(g==="tenmore"){ const n=R(10,80), up=Math.random()<.5; askEq(box, (up?"10 more than ":"10 less than ")+n, up?n+10:n-10, 12); return; }
-  if(g==="missing"){ const a=R(2,9), c=a+R(1,9); askEq(box, a+" + ? = "+c, c-a, 3); return; }
+  if(g==="onemore"){ const t=aTier(); const rng=[[5,20],[10,50],[20,98]][t]; const n=R(rng[0],rng[1]), up=Math.random()<.5; askEq(box, (up?"1 more than ":"1 less than ")+n, up?n+1:n-1, 2); return; }
+  if(g==="tenmore"){ const t=aTier(); const n=R(10,[40,60,80][t]), up=Math.random()<.5; askEq(box, (up?"10 more than ":"10 less than ")+n, up?n+10:n-10, 12); return; }
+  if(g==="missing"){ const t=aTier(); const ms=[10,14,18][t]; const a=R(2,Math.min(9,ms-2)); const c=a+R(1,ms-a); askEq(box, a+" + ? = "+c, c-a, 3); return; }
   if(g==="truefalse"){
     const a=R(2,10), b=R(1,9), real=a+b, shown=Math.random()<.5?real:real+pick([-2,-1,1,2]);
     prompt2(box, a+" + "+b+" = "+shown+" ?");
     chooseTiles(box, [{label:"👍 True", correct:shown===real},{label:"👎 False", correct:shown!==real}], "big"); return;
   }
-  if(g==="tensones"){ const n=R(21,89); prompt2(box, bigword(n)+" — how many TENS?"); const t=Math.floor(n/10); chooseTiles(box, choicesAround(t,2).map(v=>({label:v, correct:v===t}))); return; }
-  if(g==="compare"){ let a=R(10,99), b=R(10,99); while(b===a) b=R(10,99); prompt2(box,"🐊 Tap the BIGGER number!"); chooseTiles(box, shuffle([a,b]).map(v=>({label:v, correct:v===Math.max(a,b)}))); return; }
+  if(g==="tensones"){ const ti=aTier(); const n=R([11,21,31][ti],[29,59,89][ti]); prompt2(box, bigword(n)+" — how many TENS?"); const t=Math.floor(n/10); chooseTiles(box, choicesAround(t,2).map(v=>({label:v, correct:v===t}))); return; }
+  if(g==="compare"){ const t=aTier(); const hi=[20,50,99][t]; let a=R(1,hi), b=R(1,hi); while(b===a) b=R(1,hi); prompt2(box,"🐊 Tap the BIGGER number!"); chooseTiles(box, shuffle([a,b]).map(v=>({label:v, correct:v===Math.max(a,b)}))); return; }
   if(g==="clock"){ const h=R(1,12); prompt2(box,"🕐 The clock shows "+h+":00. Tap the "+h+"!"); chooseTiles(box, choicesAround(h,3).filter(v=>v>=1&&v<=12).slice(0,3).map(v=>({label:v, correct:v===h}))); return; }
   if(g==="doubles"){ const a=R(2,10); askEq(box, a+" + "+a, a+a, 3); return; }
   if(g==="add2d1d"){ const a=R(11,79), b=R(2,9); askEq(box, a+" + "+b, a+b, 3); return; }
@@ -225,7 +228,7 @@ function buildGen(it, box){
     const big=el("div"); big.style.cssText="font-size:44px;margin-top:16px;color:#6a4cff;font-weight:bold"; big.textContent=w; box.appendChild(big); return;
   }
   if(g==="sentence"){
-    const s=pick(SENTENCES);
+    const t=aTier(); const sorted=SENTENCES.slice().sort((a,b)=>a.length-b.length); const s=pick(sorted.slice(0,[6,11,sorted.length][t]));
     const p=el("div"); p.style.cssText="font-size:29px;font-weight:bold;line-height:1.45;color:#6a4cff"; p.textContent=s; box.appendChild(p);
     const note=el("div"); note.style.cssText="font-size:15px;opacity:.55;margin-top:14px"; note.textContent="Point at each word as you read it together 👆"; box.appendChild(note);
     narrate(s); return;
@@ -288,6 +291,7 @@ function chooseTiles(box, tiles, size){
     b.textContent=t.label;
     b.onclick=()=>{
       if(b.dataset.done) return;
+      if(typeof adapt!=="undefined") adapt.tap(t.correct);   // first tap = the (silent) difficulty signal
       if(t.correct){ b.classList.add("good"); b.dataset.done=1; buzz(16);
         if(typeof Voice!=="undefined"){ Voice.say(String(t.label)); Voice.good(); } else ding(); }
       else { b.classList.add("nudge"); setTimeout(()=>b.classList.remove("nudge"),400);
@@ -313,6 +317,7 @@ function backToChoose(){ hideOverlays(); renderBoard(); show("choose"); }
 /* ---------- completion ---------- */
 function finishActivity(){
   const it=current;
+  if(typeof adapt!=="undefined") adapt.done(it.gen);   // credit the skill (also nudges its rep count)
   S.progress[it.track]++; S.acts++;
   S.pet.treats += 2;   // earn treats to care for the buddy (the reward loop)
   if(it.bench) it.bench.forEach(code=>{ S.bench[code]=(S.bench[code]||0)+1; });
