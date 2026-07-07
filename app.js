@@ -86,7 +86,8 @@ function openActivity(it){
     <div class="interactive" id="inter"></div>
     <button class="donebtn" onclick="finishActivity()">We did it! ✓</button>
     <button class="stopbtn" onclick="endForToday()">All done for now 💤</button>`;
-  narrate(it.t);
+  // voice the FULL instruction for non-gen activities (say/tap/trace/count); gen items get their spoken prompt from prompt2/sentence/story
+  narrate(it.act==="gen" ? it.t : (it.t+". "+it.g));
   buildInteractive(it);
   show("activity");
 }
@@ -110,14 +111,19 @@ function buildInteractive(it){
   if(it.act==="count"){
     let n=0; const big=el("div"); big.style.fontSize="66px"; big.textContent="0";
     const b=el("button","tile"); b.style.width="auto"; b.style.padding="0 24px"; b.style.fontSize="22px"; b.textContent="Tap to count";
-    b.onclick=()=>{ if(n<it.n){ big.textContent=++n; sayNum(n); if(n===it.n){ big.textContent=n+" 🎉"; if(typeof Voice!=="undefined") Voice.fanfare(); } } };
+    b.onclick=()=>{ if(n<it.n){ big.textContent=++n;
+      if(n===it.n){ big.textContent=n+" 🎉"; if(typeof Voice!=="undefined"){ Voice.say(String(n)); Voice.fanfare(); } }   // final: speak + fanfare, no chime overlap
+      else sayNum(n); } };
     box.appendChild(big); box.appendChild(b); return;
   }
   // say / fallback
   const p=el("div"); p.style.cssText="font-size:19px;opacity:.6"; p.textContent="Play together, then tap below 👇"; box.appendChild(p);
 }
 function el(tag,cls){ const e=document.createElement(tag); if(cls) e.className=cls; return e; }
-function sayNum(n){ if(typeof Voice!=="undefined"){ Voice.say(String(n)); Voice.good(); } else ding(); }
+let _numTimer=null;
+function sayNum(n){ if(typeof Voice!=="undefined"){ Voice.good();   // chime instantly on every tap
+  clearTimeout(_numTimer); _numTimer=setTimeout(function(){ Voice.say(String(n)); }, 260); }   // speak the number once tapping settles (no mid-word cut-off)
+  else ding(); }
 function buzz(p){ try{ if(navigator.vibrate) navigator.vibrate(p); }catch(e){} }   // gentle haptic where supported
 
 /* ---------- generated problems (endlessly replayable) ---------- */
@@ -218,13 +224,14 @@ function buildGen(it, box){
   if(g==="sentence"){
     const s=pick(SENTENCES);
     const p=el("div"); p.style.cssText="font-size:29px;font-weight:bold;line-height:1.45;color:#6a4cff"; p.textContent=s; box.appendChild(p);
-    const note=el("div"); note.style.cssText="font-size:15px;opacity:.55;margin-top:14px"; note.textContent="Point at each word as you read it together 👆"; box.appendChild(note); return;
+    const note=el("div"); note.style.cssText="font-size:15px;opacity:.55;margin-top:14px"; note.textContent="Point at each word as you read it together 👆"; box.appendChild(note);
+    narrate(s); return;
   }
   if(g==="story"){
     const st=pick(STORIES);
     const t=el("div"); t.style.cssText="font-size:26px;font-weight:bold"; t.textContent=st.t;
     const q=el("div"); q.style.cssText="font-size:18px;line-height:1.4;margin-top:14px;background:#fff7e0;padding:15px;border-radius:16px"; q.textContent=st.q;
-    box.appendChild(t); box.appendChild(q); return;
+    box.appendChild(t); box.appendChild(q); narrate(st.t+". "+st.q); return;
   }
   // fallback
   prompt2(box,"Play together, then tap below 👇");
@@ -345,8 +352,17 @@ function showParent(){
   const cl=document.getElementById("coveredList"); cl.innerHTML="";
   if(!S.covered.length) cl.innerHTML='<span class="cv">Nothing yet — tap Let\'s Play! 🌱</span>';
   S.covered.slice(-24).reverse().forEach(c=>{ const x=el("div","cv"); x.textContent=c; cl.appendChild(x); });
+  populateVoices();
   show("parent");
 }
+function populateVoices(){
+  const sel=document.getElementById("voiceSelect"); if(!sel || typeof Voice==="undefined") return;
+  const list=Voice.voices(), cur=Voice.current(); sel.innerHTML="";
+  if(!list.length){ const o=document.createElement("option"); o.textContent="(loading voices…)"; sel.appendChild(o); return; }
+  list.forEach(v=>{ const o=document.createElement("option"); o.value=v.name; o.textContent=v.name+(v.local?"":" (online)"); if(v.name===cur) o.selected=true; sel.appendChild(o); });
+}
+function pickVoice(name){ if(typeof Voice!=="undefined"){ Voice.setVoice(name); Voice.sample(name); } }
+function tryVoice(){ const sel=document.getElementById("voiceSelect"); if(sel && typeof Voice!=="undefined") Voice.sample(sel.value); }
 function saveName(v){ S.name=v.trim(); save(); }
 function resetProgress(){ if(confirm("Start over? This clears all progress.")){ S=fresh(); save(); goHome(); } }
 

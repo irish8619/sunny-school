@@ -1,7 +1,7 @@
 // Sunny School — service worker.
 // Network-FIRST so updates always reach the device when online,
 // with a cache fallback so the app still works fully offline.
-const CACHE = "sunny-v11";
+const CACHE = "sunny-v13";
 const FILES = ["index.html", "fonts.css", "data-banks.js", "content.js", "speak.js", "app.js", "pet-art.js", "pet.js", "pet-games.js", "garden.js", "manifest.webmanifest", "icon.svg"];
 
 self.addEventListener("install", e => {

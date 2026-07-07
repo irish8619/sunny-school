@@ -44,9 +44,9 @@ function openGarden(){
                  '<div style="position:absolute;left:58%;top:12%;font-size:40px;opacity:.9">☁️</div>'+
                  '<div style="position:absolute;left:20%;top:24%;font-size:32px;opacity:.9">☁️</div>';
   field.appendChild(deco);
-  (S.garden||[]).forEach(s=>{
+  (S.garden||[]).slice(-140).forEach(s=>{   // render the most recent ~140 (count stays full); bounds paint on low-end tablets
     const d=el("div"); d.textContent=s.e;
-    d.style.cssText="position:absolute;left:"+s.x+"%;top:"+s.y+"%;transform:translate(-50%,-50%);font-size:38px;cursor:pointer;filter:drop-shadow(0 3px 3px rgba(60,40,90,.2))";
+    d.style.cssText="position:absolute;left:"+s.x+"%;top:"+s.y+"%;transform:translate(-50%,-50%);font-size:38px;cursor:pointer";
     d.onclick=()=>{ d.animate([{transform:'translate(-50%,-50%) scale(1)'},{transform:'translate(-50%,-50%) scale(1.5) rotate(12deg)'},{transform:'translate(-50%,-50%) scale(1)'}],{duration:400});
       if(typeof Voice!=="undefined") Voice.good(); };
     field.appendChild(d);

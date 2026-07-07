@@ -78,9 +78,10 @@ function petCheckUnlocks(){
 function openPet(){
   if(!S.pet.has){ renderHatch(); }
   else { petVisitDecay(); const away=S.pet.lastVisit && S.pet.lastVisit!==todayStr();
-    S.pet.lastVisit=todayStr(); save(); petMsg=away?"I missed you so much! 💛":""; renderPet(); }
+    S.pet.lastVisit=todayStr(); save(); petMsg=away?"I missed you so much! 💛":""; renderPet(); sayBuddy(petMsg||happyLine()); }
   show("pet");
 }
+function sayBuddy(m){ if(typeof narrate==="function") narrate((S.pet.name?S.pet.name+" says: ":"")+m); }
 function petFromCelebrate(){ hideOverlays(); openPet(); }
 
 /* ---- hatch ---- */
@@ -112,7 +113,7 @@ function renderPet(){
   const content=el("div"); content.style.cssText="position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;width:100%";
   const bubText=petMsg||happyLine();
   const bub=el("div"); bub.style.cssText="background:rgba(255,255,255,.9);border-radius:18px;padding:10px 16px;font-size:16px;font-weight:bold;margin-bottom:4px;min-height:22px;box-shadow:0 3px 8px rgba(90,60,140,.12)"; bub.textContent=bubText; content.appendChild(bub);
-  if(typeof narrate==="function") narrate((p.name?p.name+" says: ":"")+bubText);   // the buddy talks
+  /* NOTE: don't narrate here — renderPet runs on every pet/feed tap. The buddy speaks only at meaningful moments via sayBuddy(). */
   // creature with worn cosmetics
   const wrap=el("div"); wrap.style.cssText="position:relative;cursor:pointer;margin:6px 0;filter:drop-shadow(0 8px 8px rgba(60,40,90,.18))"; wrap.onclick=playPet;
   if(p.wear.hat){ const h=el("div"); h.textContent=ITEM(p.wear.hat).e; h.style.cssText="position:absolute;top:-8px;left:50%;transform:translateX(-50%);font-size:38px;z-index:2"; wrap.appendChild(h); }
@@ -136,7 +137,7 @@ function renderPet(){
 
 function happyLine(){ const h=S.pet.happy; return h>=90?"I feel great! 💛":h>=70?"This is fun!":h>=55?"I'm so glad you're here.":"Yay, you came back!"; }
 function feedPet(){ if(S.pet.treats<1) return; const b=petLevel(); S.pet.treats--; S.pet.fed++; S.pet.happy=Math.min(100,S.pet.happy+15); ding();
-  if(petLevel()>b){ petCheckUnlocks(); confetti(30); petMsg="🎉 I grew to Level "+petLevel()+"!"; } else petMsg="Yum yum! 🍎 Thank you!"; save(); renderPet(); petHop(); }
+  if(petLevel()>b){ petCheckUnlocks(); confetti(30); petMsg="🎉 I grew to Level "+petLevel()+"!"; } else petMsg="Yum yum! 🍎 Thank you!"; save(); renderPet(); petHop(); sayBuddy(petMsg); }
 function playPet(){ S.pet.happy=Math.min(100,S.pet.happy+8); ding(); save(); petMsg=["Wheee! 🎉","Hehe that tickles!","Again! Again!","I love you! 💛","So much fun!"][Math.floor(Math.random()*5)]; confetti(8); renderPet(); petHop(); }
 function petHop(){ const c=document.querySelector("#pet .creature"); if(c){ c.classList.add("happy"); setTimeout(()=>c.classList.remove("happy"),600); } }
 

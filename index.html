@@ -296,6 +296,12 @@
     <p style="font-size:16px; line-height:1.5; margin:0">One tiny thing counts as a whole day. Stopping while she's still smiling is a <b>win</b>, not a quit. Never chase the next activity — let her lead. Weeks off are okay; just tap Let's Play whenever you can.</p>
   </div>
   <div class="panel">
+    <h2>🗣️ Voice</h2>
+    <select class="namebox" id="voiceSelect" onchange="pickVoice(this.value)" style="appearance:auto"></select>
+    <button class="tinybtn" onclick="tryVoice()">🔊 Hear this voice</button>
+    <p style="font-size:13px;opacity:.7;line-height:1.5;margin-top:12px">Pick the nicest voice your device has. Want a much more natural one? On an <b>iPad</b>: Settings → Accessibility → Spoken Content → Voices → English → download an <b>“Enhanced”</b> or Siri voice. On <b>Android</b>: Settings → install/enable Google Text-to-Speech voices. New voices then show up in this list.</p>
+  </div>
+  <div class="panel">
     <h2>🧒 Her name</h2>
     <input class="namebox" id="nameInput" placeholder="Type her name" oninput="saveName(this.value)">
     <button class="tinybtn" onclick="resetProgress()">Reset all progress</button>
