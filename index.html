@@ -223,6 +223,9 @@
   /* ---- sleepy buddy + happy sparkle aura ---- */
   .creature.sleeping{ filter:brightness(.93) saturate(.9); transition:filter .5s; }
   @keyframes auraTwinkle{ 0%,100%{opacity:.3; transform:scale(.75)} 50%{opacity:1; transform:scale(1.25)} }
+  /* ---- buddy dance (button + secret triple-tap combo) ---- */
+  @keyframes petDance{ 0%,100%{transform:rotate(0) translateY(0)} 15%{transform:rotate(-13deg) translateY(-8px)} 30%{transform:rotate(11deg) translateY(0)} 45%{transform:rotate(-11deg) translateY(-8px)} 60%{transform:rotate(11deg) translateY(0)} 80%{transform:rotate(-8deg) translateY(-4px)} }
+  .creature.dancing .pa-all{ animation:petDance .85s ease-in-out 2; }
 
   /* ---- global reduced-motion: calm the WHOLE app, not just creatures ---- */
   @media (prefers-reduced-motion: reduce){

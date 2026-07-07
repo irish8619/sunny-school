@@ -90,6 +90,23 @@ function nowMs(){ return (window.performance&&performance.now)?performance.now()
 function petWake(){ petLastActive=nowMs();
   const svg=document.querySelector("#pet .creature"); if(svg){ svg.classList.remove("sleeping"); const h=svg.parentElement; if(h) h.style.transform=""; }
   const z=document.getElementById("petZzz"); if(z) z.remove(); }
+/* dance — a fun wiggle, triggered by the Dance button OR a secret triple-tap on the buddy (idea from PixelPal, kept positive-only) */
+let tapTimes=[];
+function petComboTap(){ const now=nowMs(); tapTimes.push(now); tapTimes=tapTimes.filter(t=>now-t<700);
+  if(tapTimes.length>=3){ tapTimes=[]; petDance(); } else playPet(); }
+function petDance(){ petWake();
+  const svg=document.querySelector("#pet .creature"); if(svg){ svg.classList.remove("happy"); svg.classList.add("dancing"); setTimeout(()=>svg.classList.remove("dancing"),1750); }
+  S.pet.happy=Math.min(100,S.pet.happy+6); save();
+  const b=document.getElementById("petBubble"); if(b) b.textContent="Watch me dance! 💃";
+  for(let i=0;i<8;i++) setTimeout(emitHeart, i*110);
+  if(typeof Voice!=="undefined") Voice.fanfare(); confetti(16); sayBuddy("Watch me dance!");
+  unlockBadge("dance","🕺","First Dance"); }
+function unlockBadge(key, e, name){ if(!S.pet.badges) S.pet.badges=[];
+  if(S.pet.badges.some(x=>x.key===key)) return;
+  S.pet.badges.push({key:key, e:e, name:name}); save();
+  if(typeof Voice!=="undefined") Voice.good(); confetti(12);
+  const b=document.getElementById("petBubble"); if(b) b.textContent="🏆 New badge: "+name+"!";
+  if(typeof narrate==="function") narrate("You earned a new badge! "+name+"!"); }
 function emitHeart(){
   const c=document.querySelector("#pet .creature"); if(!c) return;
   const r=c.getBoundingClientRect(); const h=el("div");
@@ -153,7 +170,7 @@ function renderPet(){
   const bub=el("div"); bub.id="petBubble"; bub.style.cssText="background:rgba(255,255,255,.9);border-radius:18px;padding:10px 16px;font-size:16px;font-weight:bold;margin-bottom:4px;min-height:22px;box-shadow:0 3px 8px rgba(90,60,140,.12)"; bub.textContent=bubText; content.appendChild(bub);
   /* NOTE: don't narrate here — renderPet runs on every pet/feed tap. The buddy speaks only at meaningful moments via sayBuddy(). */
   // creature with worn cosmetics
-  const wrap=el("div"); wrap.style.cssText="position:relative;cursor:pointer;margin:6px 0;filter:drop-shadow(0 8px 8px rgba(60,40,90,.18))"; wrap.onclick=playPet;
+  const wrap=el("div"); wrap.style.cssText="position:relative;cursor:pointer;margin:6px 0;filter:drop-shadow(0 8px 8px rgba(60,40,90,.18))"; wrap.onclick=petComboTap;   // tap = cuddle; 3 fast taps = secret dance!
   if(p.wear.hat){ const h=el("div"); h.textContent=ITEM(p.wear.hat).e; h.style.cssText="position:absolute;top:-8px;left:50%;transform:translateX(-50%);font-size:38px;z-index:2"; wrap.appendChild(h); }
   const c=el("div"); c.innerHTML=makeCreature(p.type, Math.round(petSize()*1.75)); c.style.cssText="line-height:0"; wrap.appendChild(c);
   if(p.wear.item){ const it=el("div"); it.textContent=ITEM(p.wear.item).e; it.style.cssText="position:absolute;bottom:-4px;right:-6px;font-size:34px;z-index:2"; wrap.appendChild(it); }
@@ -164,21 +181,25 @@ function renderPet(){
   const hearts=el("div"); hearts.style.cssText="font-size:28px;letter-spacing:2px;filter:drop-shadow(0 2px 3px rgba(0,0,0,.15))"; hearts.textContent="❤️".repeat(petHearts())+"🤍".repeat(5-petHearts());
   content.appendChild(nm); content.appendChild(lv); content.appendChild(hearts);
   card.appendChild(content); root.appendChild(card);
-  const tl=el("div"); tl.style.cssText="text-align:center;font-size:18px;margin:12px 0 6px"; tl.innerHTML="You have <b>🍎 "+p.treats+"</b> treats"; root.appendChild(tl);
+  if(p.badges && p.badges.length){ const br=el("div"); br.style.cssText="text-align:center;font-size:26px;margin:8px 0 0"; br.textContent=p.badges.map(x=>x.e).join("  "); br.title="Badges: "+p.badges.map(x=>x.name).join(", "); root.appendChild(br); }
+  const tl=el("div"); tl.style.cssText="text-align:center;font-size:18px;margin:10px 0 6px"; tl.innerHTML="You have <b>🍎 "+p.treats+"</b> treats"; root.appendChild(tl);
   const feed=el("button","bigbtn green"); feed.textContent="🍎 Feed "+p.name; if(p.treats<1){ feed.disabled=true; feed.style.opacity=.5; } feed.onclick=feedPet; root.appendChild(feed);
   const row=el("div"); row.style.cssText="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px";
   const closet=el("button","bigbtn pink"); closet.style.margin=0; closet.style.fontSize="20px"; closet.textContent="👕 Closet"; closet.onclick=renderShop;
   const games=el("button","bigbtn"); games.style.margin=0; games.style.fontSize="20px"; games.textContent="🎮 Games"; games.onclick=()=>openGames();
   row.appendChild(closet); row.appendChild(games); root.appendChild(row);
-  const play=el("button","bigbtn"); play.style.cssText="margin-top:12px;background:#ffc233;box-shadow:0 6px 0 #d99e12;font-size:20px;padding:16px"; play.textContent="🎾 Pet & cuddle (free!)"; play.onclick=playPet; root.appendChild(play);
+  const funRow=el("div"); funRow.style.cssText="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px";
+  const play=el("button","bigbtn"); play.style.cssText="margin:0;background:#ffc233;box-shadow:0 6px 0 #d99e12;font-size:20px;padding:16px"; play.textContent="🎾 Cuddle"; play.onclick=playPet;
+  const dance=el("button","bigbtn pink"); dance.style.cssText="margin:0;font-size:20px;padding:16px"; dance.textContent="💃 Dance"; dance.onclick=petDance;
+  funRow.appendChild(play); funRow.appendChild(dance); root.appendChild(funRow);
   startPetIdle();   // the buddy does its own cute thing while she watches
   if(p.treats<1){ const hint=el("div"); hint.style.cssText="text-align:center;font-size:14px;opacity:.6;margin-top:12px"; hint.textContent="Do a learning activity to earn more treats! 🌟"; root.appendChild(hint); }
 }
 
 function happyLine(){ const h=S.pet.happy; return h>=90?"I feel great! 💛":h>=70?"This is fun!":h>=55?"I'm so glad you're here.":"Yay, you came back!"; }
 function feedPet(){ if(S.pet.treats<1) return; const b=petLevel(); S.pet.treats--; S.pet.fed++; S.pet.happy=Math.min(100,S.pet.happy+15); ding();
-  if(petLevel()>b){ petCheckUnlocks(); confetti(30); petMsg="🎉 I grew to Level "+petLevel()+"!"; } else petMsg="Yum yum! 🍎 Thank you!"; save(); renderPet(); petHop(); sayBuddy(petMsg); }
-function playPet(){ S.pet.happy=Math.min(100,S.pet.happy+8); ding(); save(); petMsg=["Wheee! 🎉","Hehe that tickles!","Again! Again!","I love you! 💛","So much fun!"][Math.floor(Math.random()*5)]; confetti(8); renderPet(); petHop(); for(let i=0;i<5;i++) setTimeout(emitHeart, i*90); }
+  if(petLevel()>b){ petCheckUnlocks(); confetti(30); petMsg="🎉 I grew to Level "+petLevel()+"!"; } else petMsg="Yum yum! 🍎 Thank you!"; save(); renderPet(); petHop(); sayBuddy(petMsg); unlockBadge("feed","🍎","First Feed"); if(petLevel()>=5) unlockBadge("grow","⭐","Growing Up"); }
+function playPet(){ S.pet.happy=Math.min(100,S.pet.happy+8); S.pet.cuddles=(S.pet.cuddles||0)+1; ding(); save(); petMsg=["Wheee! 🎉","Hehe that tickles!","Again! Again!","I love you! 💛","So much fun!"][Math.floor(Math.random()*5)]; confetti(8); renderPet(); petHop(); for(let i=0;i<5;i++) setTimeout(emitHeart, i*90); if(S.pet.cuddles>=10) unlockBadge("cuddle","💕","Pet Lover"); }
 function petHop(){ const c=document.querySelector("#pet .creature"); if(c){ c.classList.add("happy"); setTimeout(()=>c.classList.remove("happy"),600); } }
 
 /* ---- closet & shop ---- */

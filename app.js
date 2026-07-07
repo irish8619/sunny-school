@@ -20,10 +20,10 @@ function choicesAround(answer, spread){          // 3 unique non-negative option
 let S = load();
 function load(){ try{ return migrate(JSON.parse(localStorage.getItem("sunny"))||fresh()); }catch(e){ return fresh(); } }
 function emptyProgress(){ const p={}; Object.keys(TRACKS).forEach(k=>p[k]=0); return p; }
-function freshPet(){ return { has:false, type:"", name:"", treats:0, fed:0, happy:100, lastVisit:"", owned:[], wear:{hat:null,item:null,scene:null} }; }
+function freshPet(){ return { has:false, type:"", name:"", treats:0, fed:0, happy:100, lastVisit:"", owned:[], wear:{hat:null,item:null,scene:null}, badges:[], cuddles:0 }; }
 function fresh(){ return { name:"", streak:0, days:0, acts:0, last:"", progress:emptyProgress(), covered:[], bench:{}, pet:freshPet(), garden:[], seenWelcome:false, stats:{opens:0,hearTaps:0}, skill:{} }; }
 function migrate(s){ if(!s.bench) s.bench={}; if(!s.pet) s.pet=freshPet(); if(!s.garden) s.garden=[]; if(!s.skill) s.skill={};
-  if(!s.pet.owned) s.pet.owned=[]; if(!s.pet.wear) s.pet.wear={hat:null,item:null,scene:null};
+  if(!s.pet.owned) s.pet.owned=[]; if(!s.pet.wear) s.pet.wear={hat:null,item:null,scene:null}; if(!s.pet.badges) s.pet.badges=[];
   if(!s.stats) s.stats={opens:0,hearTaps:0};
   if(s.seenWelcome===undefined) s.seenWelcome = (s.days>0 || s.acts>0);   // existing users skip the intro
   const base=emptyProgress(); s.progress=Object.assign(base, s.progress||{}); return s; }
