@@ -53,9 +53,12 @@ const Voice = (function(){
     const t=clean(text); if(!t) return;
     try{
       synth.cancel();
+      try{ document.body.classList.remove("speaking"); }catch(e){}
       const u=new SpeechSynthesisUtterance(t);
       if(voice) u.voice=voice;
       u.rate=(opts&&opts.rate)||RATE; u.pitch=(opts&&opts.pitch)||PITCH; u.volume=1;
+      u.onstart=function(){ try{ document.body.classList.add("speaking"); }catch(e){} };     // pulse the spoken element
+      u.onend=u.onerror=function(){ try{ document.body.classList.remove("speaking"); }catch(e){} };
       synth.speak(u);
     }catch(e){}
   }
@@ -76,7 +79,7 @@ const Voice = (function(){
   function fanfare(){ if(muted) return; [523,659,784,1046].forEach((f,i)=>tone(f,0.3,0.15,i*0.11)); }
 
   function toggleMute(){ muted=!muted; localStorage.setItem("sunny_mute", muted?"1":"0");
-    if(muted && synth){ try{ synth.cancel(); }catch(e){} }
+    if(muted && synth){ try{ synth.cancel(); document.body.classList.remove("speaking"); }catch(e){} }
     if(ac && master){ try{ master.gain.cancelScheduledValues(ac.currentTime); master.gain.setValueAtTime(muted?0:1, ac.currentTime); }catch(e){} }   // silence in-flight SFX too
     return muted; }
   function isMuted(){ return muted; }

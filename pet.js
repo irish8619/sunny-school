@@ -85,7 +85,11 @@ function sayBuddy(m){ if(typeof narrate==="function") narrate((S.pet.name?S.pet.
 
 /* ---- buddy "aliveness": idle micro-actions, floating hearts, chatter (all positive, no-death) ---- */
 const PET_IDLE_LINES = ["I'm so happy! 💛","What should we do?","I love you!","Tee hee!","You're my best friend!","Let's play!","Hi!","This is fun!","🎵 la la la 🎵"];
-let petIdleTimer=null;
+let petIdleTimer=null, petLastActive=0;
+function nowMs(){ return (window.performance&&performance.now)?performance.now():Date.now(); }
+function petWake(){ petLastActive=nowMs();
+  const svg=document.querySelector("#pet .creature"); if(svg){ svg.classList.remove("sleeping"); const h=svg.parentElement; if(h) h.style.transform=""; }
+  const z=document.getElementById("petZzz"); if(z) z.remove(); }
 function emitHeart(){
   const c=document.querySelector("#pet .creature"); if(!c) return;
   const r=c.getBoundingClientRect(); const h=el("div");
@@ -96,14 +100,24 @@ function emitHeart(){
   setTimeout(()=>h.remove(),1500);
 }
 function startPetIdle(){
+  petWake();   // interaction (each render) resets the sleep clock
   clearInterval(petIdleTimer);
   petIdleTimer=setInterval(function(){
-    const pet=document.getElementById("pet"), c=document.querySelector("#pet .creature");
-    if(!c || !pet || pet.classList.contains("hidden")){ clearInterval(petIdleTimer); petIdleTimer=null; return; }
+    const pet=document.getElementById("pet"), svg=document.querySelector("#pet .creature");
+    if(!svg || !pet || pet.classList.contains("hidden")){ clearInterval(petIdleTimer); petIdleTimer=null; return; }
+    const holder=svg.parentElement, wrap=holder&&holder.parentElement;
+    if(nowMs()-petLastActive > 18000){   // sleepy after a while untouched — a tap wakes it happily
+      if(!svg.classList.contains("sleeping")){ svg.classList.add("sleeping");
+        const b=document.getElementById("petBubble"); if(b) b.textContent="Zzz… 💤";
+        if(wrap && !document.getElementById("petZzz")){ const z=el("div"); z.id="petZzz"; z.textContent="💤"; z.style.cssText="position:absolute;top:-4px;right:-8px;font-size:30px;animation:bob 2.6s ease-in-out infinite"; wrap.appendChild(z); }
+      }
+      return;
+    }
     const roll=Math.random();
-    if(roll<0.38){ c.classList.add("happy"); setTimeout(()=>c.classList.remove("happy"),550); }   // a little hop
-    else if(roll<0.72){ emitHeart(); }                                                              // float a heart
-    else { const b=document.getElementById("petBubble"); if(b) b.textContent=PET_IDLE_LINES[Math.floor(Math.random()*PET_IDLE_LINES.length)]; }  // a chatter line
+    if(roll<0.26){ svg.classList.add("happy"); setTimeout(()=>svg.classList.remove("happy"),550); }        // a little hop
+    else if(roll<0.54){ emitHeart(); }                                                                     // float a heart
+    else if(roll<0.76){ holder.style.transition="transform .9s ease-in-out"; holder.style.transform="translateX("+Math.round(Math.random()*64-32)+"px)"; }  // wander the meadow
+    else { const b=document.getElementById("petBubble"); if(b) b.textContent=PET_IDLE_LINES[Math.floor(Math.random()*PET_IDLE_LINES.length)]; }              // chatter
   }, 4200);   // gentle pace (calm budget)
 }
 function petFromCelebrate(){ hideOverlays(); openPet(); }
@@ -143,6 +157,7 @@ function renderPet(){
   if(p.wear.hat){ const h=el("div"); h.textContent=ITEM(p.wear.hat).e; h.style.cssText="position:absolute;top:-8px;left:50%;transform:translateX(-50%);font-size:38px;z-index:2"; wrap.appendChild(h); }
   const c=el("div"); c.innerHTML=makeCreature(p.type, Math.round(petSize()*1.75)); c.style.cssText="line-height:0"; wrap.appendChild(c);
   if(p.wear.item){ const it=el("div"); it.textContent=ITEM(p.wear.item).e; it.style.cssText="position:absolute;bottom:-4px;right:-6px;font-size:34px;z-index:2"; wrap.appendChild(it); }
+  if(p.happy>=90){ [["top:2px;left:2%","0s"],["top:12%;right:2%",".5s"],["bottom:18%;left:16%","1s"]].forEach(s=>{ const sp=el("div"); sp.textContent="✨"; sp.style.cssText="position:absolute;font-size:22px;pointer-events:none;animation:auraTwinkle 2s ease-in-out infinite "+s[1]+";"+s[0]; wrap.appendChild(sp); }); }
   content.appendChild(wrap);
   const nm=el("div"); nm.style.cssText="font-size:26px;font-weight:bold;color:"+(dark?"#fff":"var(--ink)")+";text-shadow:0 2px 4px rgba(255,255,255,.5)"; nm.textContent=p.name;
   const lv=el("div"); lv.style.cssText="font-size:14px;opacity:.75;margin-bottom:6px;color:"+(dark?"#fff":"var(--ink)"); lv.textContent="Level "+petLevel();

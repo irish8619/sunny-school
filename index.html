@@ -208,6 +208,22 @@
   /* ---- calm budget: hush the drifting background during a task ---- */
   body.calm #sky span{ animation-play-state:paused; opacity:.22; }
 
+  /* ---- audio-synced pulse: the thing being SPOKEN gently breathes (a visual anchor for a pre-reader) ---- */
+  @keyframes speakPulse{ 0%,100%{transform:scale(1)} 50%{transform:scale(1.06)} }
+  body.speaking .emoji, body.speaking .hearbtn{ animation:speakPulse .85s ease-in-out infinite; transform-origin:center; }
+
+  /* ---- squishier taps (tactile feedback) ---- */
+  .tile:active{ transform:translateY(4px) scale(.95); }
+  .donebtn:active{ transform:translateY(5px) scale(.98); }
+
+  /* ---- hand-drawn (slightly organic) choice cards — calmer, less "generic pill" ---- */
+  .board .pcard{ border-radius:30px 36px 28px 34px; }
+  .board .pcard:nth-child(even){ border-radius:36px 28px 34px 30px; }
+
+  /* ---- sleepy buddy + happy sparkle aura ---- */
+  .creature.sleeping{ filter:brightness(.93) saturate(.9); transition:filter .5s; }
+  @keyframes auraTwinkle{ 0%,100%{opacity:.3; transform:scale(.75)} 50%{opacity:1; transform:scale(1.25)} }
+
   /* ---- global reduced-motion: calm the WHOLE app, not just creatures ---- */
   @media (prefers-reduced-motion: reduce){
     *{ animation-duration:.001ms !important; animation-iteration-count:1 !important; transition-duration:.001ms !important; }
