@@ -73,6 +73,75 @@ const STANDARDS = {
       "ELA.1.C.2.1":"Speak in complete sentences",
     },
   },
+  Science: {   /* Florida NGSSS grade-1 — verified via CPALMS */
+    "Nature of Science":{
+      "SC.1.N.1.1":"Ask questions & explore by trying things out",
+      "SC.1.N.1.2":"Use the five senses to look closely & describe",
+      "SC.1.N.1.3":"Keep a record of a discovery with pictures/marks",
+      "SC.1.N.1.4":"Find things out by testing, not just guessing",
+    },
+    "Life Science":{
+      "SC.1.L.14.1":"Observe living things with your senses",
+      "SC.1.L.14.2":"Name plant parts: roots, stem, leaves, flowers",
+      "SC.1.L.14.3":"Tell living from nonliving things",
+      "SC.1.L.16.1":"Babies look like their parents (but a little different)",
+      "SC.1.L.17.1":"Living things need air, water, food & space",
+    },
+    "Physical Science":{
+      "SC.1.P.8.1":"Sort things by what you observe (size, color, sink/float)",
+      "SC.1.P.12.1":"Things move in different ways (straight, zigzag, spin)",
+      "SC.1.P.13.1":"A push or a pull changes how something moves",
+    },
+    "Earth & Space":{
+      "SC.1.E.5.1":"So many stars — too many to count",
+      "SC.1.E.5.2":"Gravity: Earth pulls things down",
+      "SC.1.E.5.3":"Magnifiers make tiny things look bigger",
+      "SC.1.E.5.4":"The Sun helps us — and we stay safe from it",
+      "SC.1.E.6.1":"Earth has water, rocks, soil & living things",
+      "SC.1.E.6.2":"We need water & stay safe around it",
+      "SC.1.E.6.3":"Some things happen fast, some slow",
+    },
+  },
+  "Social Studies": {   /* Florida NGSSS grade-1 (course 5021030) — verified via CPALMS */
+    "American History":{
+      "SS.1.A.1.1":"A primary source is a real thing from the past",
+      "SS.1.A.1.2":"We can look things up to learn about the past",
+      "SS.1.A.2.1":"History is the story of people long ago",
+      "SS.1.A.2.2":"Compare life now with life in the past",
+      "SS.1.A.2.3":"Holidays help us remember important people & events",
+      "SS.1.A.2.4":"People from the past who were brave & honest",
+      "SS.1.A.2.5":"Tell a true fact from a made-up story",
+      "SS.1.A.3.1":"Put events in order (day, week, month, year)",
+      "SS.1.A.3.2":"Make a simple timeline",
+    },
+    "Geography":{
+      "SS.1.G.1.1":"Use maps to find places in Florida",
+      "SS.1.G.1.2":"Spot map parts (compass, title, key)",
+      "SS.1.G.1.3":"Build a simple map with symbols",
+      "SS.1.G.1.4":"Find water & land on a map (oceans, lakes, rivers)",
+      "SS.1.G.1.5":"Locate my community, Florida & the oceans",
+      "SS.1.G.1.6":"How place & weather shape how people live",
+    },
+    "Economics":{
+      "SS.1.E.1.1":"Money trades for goods & services",
+      "SS.1.E.1.2":"Choosing one thing means giving up another",
+      "SS.1.E.1.3":"Tell goods (things) from services (helpful actions)",
+      "SS.1.E.1.4":"People as buyers, sellers & makers",
+      "SS.1.E.1.5":"Saving money to buy something later",
+      "SS.1.E.1.6":"We make choices because things are scarce",
+    },
+    "Civics & Government":{
+      "SS.1.C.1.1":"Rules & laws keep us safe",
+      "SS.1.C.1.2":"Who makes & keeps the rules",
+      "SS.1.C.1.3":"Unkind power (bullying, grabbing) is not okay",
+      "SS.1.C.2.1":"Kids have rights & responsibilities",
+      "SS.1.C.2.2":"What a responsible citizen does",
+      "SS.1.C.2.3":"Ways to make school/community better",
+      "SS.1.C.2.4":"Show kindness to people & animals",
+      "SS.1.C.3.1":"Solve problems in fair ways",
+      "SS.1.C.3.2":"American symbols & leaders (flag, eagle, presidents)",
+    },
+  },
 };
 
 /* ============================================================
@@ -144,24 +213,48 @@ const TRACKS = {
     {e:"🧩",t:"Tower crash",   g:"Build the tallest tower… then knock it down! Repeat forever.", act:"say", bench:[]},
   ]},
 
-  /* ---- BUILT, NOT YET ON THE BOARD (flip on later) ---- */
+  /* SCIENCE — Florida NGSSS grade-1. All voiced, all no-wrong-answer (tap=explore, every tap teaches). */
   science: { name:"Science", color:"#2fbf71", items:[
-    {e:"🌱",t:"Living or not?",  g:"Living things grow, eat, and need water. Tap the living one — say why!", act:"tap",tiles:["🌻","🪨","🐛","🧸"],answer:null, bench:[]},
-    {e:"🌦️",t:"Weather & seasons",g:"What's the weather today? What season are we in? Tap what you see.", act:"tap",tiles:["☀️","🌧️","❄️","🍂"],answer:null, bench:[]},
-    {e:"🖐️",t:"Five senses",    g:"See, hear, smell, taste, touch. Pick one thing and use all 5 senses on it!", act:"say", bench:[]},
-    {e:"🌻",t:"What plants need",g:"Plants need sun, water, and air to grow. Tap what a plant drinks!", act:"tap",tiles:["💧","🍭","🎈"],answer:null, bench:[]},
-    {e:"🔨",t:"Push or pull",    g:"A push moves it away, a pull brings it close. Push a toy, then pull it!", act:"say", bench:[]},
-    {e:"🌙",t:"Day & night sky", g:"Sun in the day, moon & stars at night. Tap what's out at bedtime.", act:"tap",tiles:["☀️","🌙"],answer:null, bench:[]},
+    {e:"🔎",t:"Wonder buttons", g:"Tap anything you're curious about! I'll wonder with you — then go try it for real and see what happens!", act:"tap",tiles:["🪨","🍃","🫧","🌑"],answer:null, bench:["SC.1.N.1.1"]},
+    {e:"👀",t:"Look closely",   g:"Tap a thing! Now tell me — what color is it? Big or little? Soft or hard? Looking closely is what scientists do!", act:"tap",tiles:["🍎","⚽","🪶"],answer:null, bench:["SC.1.N.1.2"]},
+    {e:"🧪",t:"How do you know?",g:"Do we just GUESS, or do we TRY it? Tap the science tools — that's how we really find out!", act:"tap",tiles:["🤔","🔬","🔭"],answer:null, bench:["SC.1.N.1.4"]},
+    {e:"🌱",t:"Living or not?",  g:"Tap the LIVING things! Living things grow and eat and drink water. Which ones are alive?", act:"tap",tiles:["🐶","🪨","🌻","🥄"],answer:null, bench:["SC.1.L.14.3"]},
+    {e:"🌻",t:"Plant parts",     g:"Tap a plant part! Flower, leaves, stem, and roots — tap each one and I'll name it for you!", act:"tap",tiles:["🌸","🍃","🌱","🫚"],answer:null, bench:["SC.1.L.14.2"]},
+    {e:"🐣",t:"Baby & grown-up", g:"Tap a baby animal! Babies look a LOT like their mamas — but each one is special and a little different!", act:"tap",tiles:["🐱","🐈","🐤","🐓"],answer:null, bench:["SC.1.L.16.1"]},
+    {e:"💧",t:"What we need",     g:"Tap what every living thing needs! Air, water, food, and space — plants, animals, and YOU need all four!", act:"tap",tiles:["💨","💧","🍎","🏠"],answer:null, bench:["SC.1.L.17.1"]},
+    {e:"🖐️",t:"Five-senses walk",g:"Find a plant, a pet, or a bug! Look at it, gently touch it, listen. What do your senses notice? Tell me all about it!", act:"say", bench:["SC.1.L.14.1"]},
+    {e:"🧺",t:"Sort it",         g:"Tap to sort! Which ones are BIG? Which are little? Which would sink or float? Let's notice how they're different!", act:"tap",tiles:["🐘","🐭","🎈","🪨"],answer:null, bench:["SC.1.P.8.1"]},
+    {e:"🔄",t:"Ways to move",    g:"Tap a way to move! Straight, zigzag, round-and-round, or back-and-forth — you pick, and I'll name it!", act:"tap",tiles:["➡️","〰️","🔄","↔️"],answer:null, bench:["SC.1.P.12.1"]},
+    {e:"🤲",t:"Push or pull",    g:"Tap push or pull! A push sends things away, a pull brings them close. That's how we make things move!", act:"tap",tiles:["👉","🤲"],answer:null, bench:["SC.1.P.13.1"]},
+    {e:"🍏",t:"Drop it!",        g:"Tap something and drop it! Watch — it falls DOWN. Earth pulls everything down. That's called gravity!", act:"tap",tiles:["🪶","🍎","👟"],answer:null, bench:["SC.1.E.5.2"]},
+    {e:"⭐",t:"Count the stars", g:"Tap the stars to light them up! There are SO many stars — too many to count. The whole sky is full of them!", act:"tapcount",emoji:"⭐",n:10, bench:["SC.1.E.5.1"]},
+    {e:"🌍",t:"What's on Earth", g:"Tap our Earth! Water, rocks, soil, and living things — tap each one and I'll tell you what it is!", act:"tap",tiles:["💧","🪨","🌱","🌳"],answer:null, bench:["SC.1.E.6.1"]},
+    {e:"☀️",t:"Sunny & safe",    g:"Tap the sunny pictures! The sun helps things grow and warms us — AND we stay safe with a hat and sunscreen!", act:"tap",tiles:["🌻","🧢","🧴","😎"],answer:null, bench:["SC.1.E.5.4"]},
   ]},
+
+  /* SOCIAL STUDIES — Florida NGSSS grade-1. All voiced, no-wrong-answer, holiday-friendly. */
   social: { name:"My World", color:"#ff8c42", items:[
-    {e:"📅",t:"Days & calendar", g:"What day is it today? What did we do yesterday? What's tomorrow? Point at a calendar.", act:"say", bench:[]},
-    {e:"👩‍🚒",t:"Community helpers",g:"Who helps us? Tap a helper and say how they help!", act:"tap",tiles:["👮","🚒","👩‍⚕️","🧑‍🏫"],answer:null, bench:[]},
-    {e:"✋",t:"Needs vs wants",  g:"We NEED food, water, a home. We WANT toys and candy. Tap a real need!", act:"tap",tiles:["🍎","🧸","💧","🍬"],answer:null, bench:[]},
-    {e:"🗺️",t:"Maps & where I live",g:"A map shows where things are. Draw a map of her room together!", act:"say", bench:[]},
-    {e:"🤝",t:"Rules keep us safe",g:"Why do we have rules? Name one rule at home and why it helps.", act:"say", bench:[]},
+    {e:"🛑",t:"Rules keep us safe",g:"Tap a rule! A stop sign, raising your hand, a crosswalk — tap each one and I'll tell you how it keeps us safe!", act:"tap",tiles:["🛑","✋","🚸"],answer:null, bench:["SS.1.C.1.1"]},
+    {e:"🤝",t:"Kind or not-kind", g:"Tap the kind things! Sharing and hugging are kind. Let's always choose kindness — it feels good!", act:"tap",tiles:["🤝","🫂","😢"],answer:null, bench:["SS.1.C.1.3"]},
+    {e:"🐶",t:"Be gentle & kind", g:"Tap to be gentle! Soft hands with animals and friends. Kindness makes everyone feel safe and happy!", act:"tap",tiles:["🐶","🐱","🌷"],answer:null, bench:["SS.1.C.2.4"]},
+    {e:"♻️",t:"Good-citizen garden",g:"Tap a kind act to grow something! Recycle, help a friend, follow a rule — every good thing you do grows your world!", act:"tap",tiles:["♻️","🤗","✅","🧹"],answer:null, bench:["SS.1.C.2.2"]},
+    {e:"🧑‍🏫",t:"Who's in charge",  g:"Tap who helps make the rules! Teachers, parents, and police — tap each one and I'll tell you what they do!", act:"tap",tiles:["🧑‍🏫","👪","👮"],answer:null, bench:["SS.1.C.1.2"]},
+    {e:"⚖️",t:"Solve it fairly",   g:"Two friends want the same swing! We can talk, take turns, or share. What's a fair way to fix it? Any kind idea is great!", act:"say", bench:["SS.1.C.3.1"]},
+    {e:"🇺🇸",t:"Our country's symbols",g:"Tap our country's symbols! The flag, the bald eagle, the Statue of Liberty — tap each one and hear its story!", act:"tap",tiles:["🇺🇸","🦅","🗽"],answer:null, bench:["SS.1.C.3.2"]},
+    {e:"🕯️",t:"Now or long ago",   g:"Tap the pictures! Some things are from NOW, some from LONG AGO. Candles or lamps? Horses or cars? I'll tell you which!", act:"tap",tiles:["🕯️","💡","🐎","🚗"],answer:null, bench:["SS.1.A.2.2"]},
+    {e:"📜",t:"A story from long ago",g:"Long ago, kids carried water in buckets — there were no faucets! Listen to a little story from the past.", act:"say", bench:["SS.1.A.2.1"]},
+    {e:"🎆",t:"Holidays we remember",g:"Tap a holiday! We celebrate to remember special people and days. Tap each one and I'll tell you all about it!", act:"tap",tiles:["🎆","🦃","🎂","🎇"],answer:null, bench:["SS.1.A.2.3"]},
+    {e:"🎖️",t:"Meet a hero",       g:"Tap a hero! Brave and kind people who helped others. Tap each one and hear their story!", act:"tap",tiles:["👮","🚒","🎖️"],answer:null, bench:["SS.1.A.2.4"]},
+    {e:"🌅",t:"My day in order",    g:"Tap your day in order! First we wake up, then lunch, then bedtime. What comes first? What comes last?", act:"tap",tiles:["🌅","🍽️","🌙"],answer:null, bench:["SS.1.A.3.1"]},
+    {e:"🌎",t:"Maps & my place",    g:"Tap from your house, to your town, to the whole big world! See how it gets bigger and bigger and bigger?", act:"tap",tiles:["🏠","🗺️","🌎"],answer:null, bench:["SS.1.G.1.5"]},
+    {e:"🌊",t:"Water & land",       g:"Tap the water and the land! Oceans, lakes, rivers, and mountains — tap each one and I'll name it!", act:"tap",tiles:["🌊","🏞️","🏜️","⛰️"],answer:null, bench:["SS.1.G.1.4"]},
+    {e:"🪙",t:"Money buys things",  g:"Tap a coin, then something to buy! Money lets us trade for things we want. What will you get?", act:"tap",tiles:["🪙","🍎","🍞","🧸"],answer:null, bench:["SS.1.E.1.1"]},
+    {e:"🐷",t:"Fill the piggy bank",g:"Tap coins into your piggy bank! The more you save, the sooner you can buy something special. Saving grows and grows!", act:"tapcount",emoji:"🪙",n:6, bench:["SS.1.E.1.5"]},
+    {e:"🍎",t:"Need it or want it", g:"Tap the things we really NEED to live! Food, water, a home. Toys and candy are fun WANTS. Which do we need?", act:"tap",tiles:["🍎","🧸","💧","🍬"],answer:null, bench:["SS.1.E.1.2"]},
+    {e:"🍔",t:"A thing or a help",  g:"Tap a THING or a HELP! A hamburger is a thing you can hold. Sweeping and helping sick people are HELPS people do!", act:"tap",tiles:["🍔","🧹","👩‍⚕️","🚗"],answer:null, bench:["SS.1.E.1.3"]},
   ]},
 };
 
-/* Tracks currently on the choose-board (start focused on the 3 R's + regulation) */
-const ORDER = ["reading","math","writing","move"];
+/* Tracks on the choose-board: the 3 R's + the two new subjects + a movement brain-break */
+const ORDER = ["reading","math","writing","science","social","move"];
 const BANKS = { DIGRAPHS, BLENDS, SILENTE, VOWELTEAM, ENDINGS };  // for readword gen

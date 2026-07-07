@@ -380,7 +380,7 @@ function showStandards(){
     const sub=STANDARDS[subj];
     const h=el("div"); h.className="stdSubj"; h.textContent=subj;
     const wrap=el("div","panel"); wrap.style.marginTop="8px";
-    const hh=el("h2"); hh.textContent=({Math:"🔢 ",Reading:"📖 ",Writing:"✏️ "}[subj]||"⭐ ")+"Florida Grade 1 — "+subj; wrap.appendChild(hh);
+    const hh=el("h2"); hh.textContent=({Math:"🔢 ",Reading:"📖 ",Writing:"✏️ ",Science:"🔬 ","Social Studies":"🌎 "}[subj]||"⭐ ")+"Florida Grade 1 — "+subj; wrap.appendChild(hh);
     Object.keys(sub).forEach(strand=>{
       const st=el("div","strand"); st.textContent=strand; wrap.appendChild(st);
       Object.keys(sub[strand]).forEach(code=>{
