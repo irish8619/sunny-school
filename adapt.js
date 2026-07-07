@@ -44,10 +44,9 @@ const adapt = (function(){
   function tier(tiers){
     const k = sig.skill; if(!k) return 0;
     const s = get(k);
-    let t;
-    if(s.reps < 3) t = 0;                                              // new skill → always the easy on-ramp
-    else t = Math.min(tiers-1, Math.max(0, Math.floor(s.ease * tiers)));
-    if(!coldStart.has(k)){ coldStart.add(k); t = Math.max(0, t-1); }   // first time this app-open → one notch gentler
+    if(s.reps < 3) return 0;                                           // new skill → always the easy on-ramp (don't spend cold-start here)
+    let t = Math.min(tiers-1, Math.max(0, Math.floor(s.ease * tiers)));
+    if(!coldStart.has(k)){ coldStart.add(k); t = Math.max(0, t-1); }   // gentle re-entry — spent on the first REAL (post-on-ramp) card of the session
     return t;
   }
 
@@ -60,8 +59,19 @@ const adapt = (function(){
     if(typeof save === "function") save();
   }
 
-  /* she finished the activity (demand-avoidant-safe signal: works even for no-wrong-answer items) */
-  function done(g){ const k = skillOf(g); if(!k) return; const s = get(k); s.reps++; s.ease = Math.min(0.95, s.ease + 0.005); s.hi = Math.max(s.hi, s.ease); if(typeof save === "function") save(); }
+  /* she finished the activity — this advances the on-ramp ONLY. Completion is NOT
+     evidence the difficulty was right (she finishes by tapping ✓ regardless), so it
+     never raises ease. Ease moves ONLY on a real first-tap signal. This keeps the
+     no-wrong-answer skills (counting, sentences) from ever ratcheting up with no way
+     to come down — they simply hold a fixed, gentle level. */
+  function done(g){ const k = skillOf(g); if(!k) return; const s = get(k); s.reps++; if(typeof save === "function") save(); }
+
+  // re-arm the gentle re-entry when she returns after a break (a PWA often RESUMES, not reloads)
+  let hiddenAt = 0;
+  try{ document.addEventListener("visibilitychange", function(){
+    if(document.visibilityState === "hidden") hiddenAt = performance.now();
+    else if(document.visibilityState === "visible" && performance.now() - hiddenAt > 120000) coldStart.clear();
+  }); }catch(e){}
 
   return { skillOf, begin, tier, tap, done };
 })();

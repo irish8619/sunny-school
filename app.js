@@ -183,7 +183,7 @@ function buildGen(it, box){
   }
   // ---- counting gens (no wrong answer) ----
   if(g==="count120"){
-    const t=aTier(); const start=R(90,109); countTap(box, start, +1, [8,12,16][t], "Count UP from "+start+"!"); return;
+    const t=aTier(); const start=R(90,109); countTap(box, start, +1, Math.min([8,12,16][t], 120-start), "Count UP from "+start+"!"); return;
   }
   if(g==="countback"){
     const t=aTier(); const start=[R(5,10),R(8,14),R(12,20)][t]; countTap(box, start, -1, Math.min(start,14), "Count BACK from "+start+"… blast off! 🚀"); return;
